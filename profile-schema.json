@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/deloitte/deloitte-profiles/profile-schema.json",
+  "title": "Deloitte Project Profile",
+  "description": "Schema for project profile files used by the BR Skills ecosystem (br-analyzer, br-executor, br-reviewer, etc.)",
+  "type": "object",
+  "required": ["project", "tech_stack"],
+  "additionalProperties": false,
+  "properties": {
+    "project": {
+      "type": "object",
+      "description": "Project identification and metadata",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project name (used as display label and directory reference)",
+          "minLength": 1
+        },
+        "client": {
+          "type": "string",
+          "description": "Client or business unit name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief project description"
+        }
+      }
+    },
+    "tech_stack": {
+      "type": "object",
+      "description": "Technology stack details for backend and frontend",
+      "additionalProperties": true,
+      "properties": {
+        "backend": {
+          "type": "object",
+          "description": "Backend technology stack",
+          "additionalProperties": true,
+          "properties": {
+            "language": {
+              "type": "string",
+              "description": "Primary backend language (e.g. Java, C#, Python)"
+            },
+            "framework": {
+              "type": "string",
+              "description": "Backend framework (e.g. Spring Boot, .NET, Django)"
+            },
+            "database": {
+              "type": "string",
+              "description": "Primary database (e.g. PostgreSQL, Oracle, MongoDB)"
+            },
+            "orm": {
+              "type": "string",
+              "description": "ORM or data access layer (e.g. JPA/Hibernate, Entity Framework, SQLAlchemy)"
+            },
+            "build": {
+              "type": "string",
+              "description": "Build tool (e.g. Maven, Gradle, pip)"
+            }
+          }
+        },
+        "frontend": {
+          "type": "object",
+          "description": "Frontend technology stack",
+          "additionalProperties": true,
+          "properties": {
+            "language": {
+              "type": "string",
+              "description": "Primary frontend language (e.g. TypeScript, JavaScript)"
+            },
+            "framework": {
+              "type": "string",
+              "description": "Frontend framework (e.g. Angular, React, Vue)"
+            },
+            "database": {
+              "type": "string",
+              "description": "Client-side storage if applicable (e.g. IndexedDB, localStorage)"
+            },
+            "orm": {
+              "type": "string",
+              "description": "Data layer if applicable (e.g. Apollo Client, TanStack Query)"
+            },
+            "build": {
+              "type": "string",
+              "description": "Build tool (e.g. Webpack, Vite, esbuild)"
+            }
+          }
+        }
+      }
+    },
+    "conventions": {
+      "type": "object",
+      "description": "Project coding conventions and structural patterns",
+      "additionalProperties": true,
+      "properties": {
+        "package_structure": {
+          "type": "string",
+          "description": "Package/module organization pattern (e.g. 'com.client.project.module.layer')"
+        },
+        "layers": {
+          "type": "array",
+          "description": "Architectural layers in order (e.g. ['controller', 'service', 'repository', 'entity'])",
+          "items": {
+            "type": "string"
+          }
+        },
+        "base_entity": {
+          "type": "string",
+          "description": "Base entity class or interface that all entities extend (e.g. 'BaseEntity', 'AuditableEntity')"
+        },
+        "api_prefix": {
+          "type": "string",
+          "description": "API URL prefix pattern (e.g. '/api/v1')"
+        },
+        "test_framework": {
+          "type": "string",
+          "description": "Test framework in use (e.g. 'JUnit 5', 'Jest', 'pytest')"
+        },
+        "test_naming": {
+          "type": "string",
+          "description": "Test naming convention (e.g. 'should_doX_when_Y', 'test_x_returns_y')"
+        },
+        "branch_convention": {
+          "type": "string",
+          "description": "Git branch naming convention (e.g. 'feature/BR-XXX-description')"
+        },
+        "commit_convention": {
+          "type": "string",
+          "description": "Commit message convention (e.g. 'conventional commits', 'BR-XXX: description')"
+        }
+      }
+    },
+    "design_system": {
+      "type": "object",
+      "description": "Frontend design system tokens and component references",
+      "additionalProperties": true,
+      "properties": {
+        "palette": {
+          "description": "Color palette definition (object with named colors or reference to tokens file)",
+          "additionalProperties": true
+        },
+        "typography": {
+          "description": "Typography settings (font families, scale, weights)",
+          "additionalProperties": true
+        },
+        "spacing": {
+          "description": "Spacing scale or system (e.g. 4px grid, named tokens)",
+          "additionalProperties": true
+        },
+        "components": {
+          "description": "Component library or UI kit details",
+          "additionalProperties": true
+        },
+        "reference_files": {
+          "type": "array",
+          "description": "Relative paths to design reference files (mockups, Figma exports, style guides)",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "description": "Domain-specific knowledge: glossary, business rules, entity states",
+      "additionalProperties": true,
+      "properties": {
+        "glossary": {
+          "type": "object",
+          "description": "Domain glossary mapping term to definition",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "business_rules": {
+          "type": "array",
+          "description": "Key business rules as human-readable strings",
+          "items": {
+            "type": "string"
+          }
+        },
+        "entity_states": {
+          "type": "object",
+          "description": "Valid state values per entity (e.g. { 'Order': ['DRAFT', 'CONFIRMED', 'SHIPPED'] })",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "custom_agents": {
+      "type": "array",
+      "description": "Relative paths to custom agent .md files for project-specific AI behaviors",
+      "items": {
+        "type": "string",
+        "pattern": "\\.md$"
+      }
+    }
+  }
+}
