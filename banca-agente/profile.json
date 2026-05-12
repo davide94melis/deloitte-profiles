@@ -1,0 +1,98 @@
+{
+  "nome": "banca-agente",
+  "creato": "2026-05-12",
+  "aggiornato": "2026-05-12",
+  "codebase": [
+    {
+      "nome": "back-end",
+      "sigla": "BE",
+      "tipo": "backend",
+      "framework": "Spring Boot 3.2.0",
+      "linguaggio": "Java 21",
+      "database": "MySQL",
+      "orm": "Hibernate/JPA",
+      "mapping": "MapStruct 1.5.5",
+      "struttura": "layered (controller, service, repository, domain, dto, mapper, config, enumeration, error, utils, audit, scheduled, shared, connector, interceptor, annotation)",
+      "baseEntity": "it.deloitte.ba.backend.audit.Auditable<U> (createdBy, createdDate, lastModifiedBy, lastModifiedDate)",
+      "apiPrefix": "nessun prefix globale — path per controller (/admin-util, /assessment, /public/*, /assurance, /back-office/*)",
+      "testFramework": "JUnit 5 + Mockito + AssertJ",
+      "testNaming": "shouldXxxWhenYyy (es. shouldCreateCsvDataRecord)"
+    },
+    {
+      "nome": "front-end",
+      "sigla": "FE",
+      "tipo": "frontend",
+      "framework": "Angular 15",
+      "linguaggio": "TypeScript 4.9",
+      "struttura": "modulare per feature (module/agency-desk, module/autogreen, module/common, module/esgo, module/marketplace) + shared (class, const, directive, enum, helper, model, pipe, type, ui, validator) + service",
+      "prefixComponenti": "app",
+      "testFramework": "Karma + Jasmine",
+      "testNaming": "describe + it('should ...')",
+      "i18n": "@ngx-translate (assets/i18n/)",
+      "designSystem": {
+        "uiLibrary": "PrimeNG 15.2 + PrimeFlex 3.3",
+        "css": "SCSS",
+        "colori": {
+          "--primary-color": "teal/dark cyan (tema Agency Desk)",
+          "--brand-color": "variabile brand",
+          "--text-color": "variabile testo",
+          "--warning-color": "variabile warning",
+          "--surface-border": "variabile bordi",
+          "--primary-customer-600": "variante primario customer"
+        },
+        "font": "Space Grotesk (custom, assets/fonts/space-grotesk/)",
+        "temi": "agency-desk (cartella assets/css/themes/agency-desk)"
+      }
+    },
+    {
+      "nome": "email-manager",
+      "sigla": "EM",
+      "tipo": "backend",
+      "framework": "Spring Boot 3.2.0",
+      "linguaggio": "Java 21",
+      "database": "MySQL",
+      "orm": "Hibernate/JPA",
+      "mapping": "MapStruct 1.5.5",
+      "struttura": "layered (controller, service, repository, domain, config, util)",
+      "apiPrefix": "/public/email",
+      "extra": "spring-boot-starter-mail + Thymeleaf (template email)",
+      "testFramework": "JUnit 5"
+    },
+    {
+      "nome": "document-manager",
+      "sigla": "DM",
+      "tipo": "backend",
+      "framework": "Spring Boot 4.0.0",
+      "linguaggio": "Java 21",
+      "database": "MySQL (Aurora RDS AWS)",
+      "orm": "Hibernate/JPA",
+      "mapping": "MapStruct 1.6.3",
+      "struttura": "layered (controller, service, repository, model, dto, errors, config, util)",
+      "apiPrefix": "/api/public/document",
+      "extra": "Apache Tika 3.2.3 + Apache POI 5.5 + AWS S3",
+      "testFramework": "JUnit 5"
+    },
+    {
+      "nome": "gateway",
+      "sigla": "GA",
+      "tipo": "backend",
+      "framework": "Spring Boot 3.1.4 + Spring Cloud Gateway (WebFlux)",
+      "linguaggio": "Java 21",
+      "database": "nessuno",
+      "struttura": "minima (config, controller, service)",
+      "autenticazione": "JWT (jjwt 0.9.1)",
+      "testFramework": "JUnit 5 + Reactor Test"
+    }
+  ],
+  "principiInviolabili": {
+    "sicurezza": "Tutto il codice deve rispettare gli standard OWASP Top 10. Nessuna eccezione. Ogni endpoint, input utente, query e gestione dati sensibili deve essere verificata contro le 10 categorie OWASP prima del merge.",
+    "accessibilita": "Tutto il codice frontend deve rispettare i requisiti di accessibilità (WCAG). Ogni componente UI deve essere navigabile da tastiera, compatibile con screen reader, con contrasto adeguato e attributi ARIA corretti.",
+    "responsiveness": "Tutto il codice frontend deve essere responsive. Ogni vista e componente deve funzionare correttamente su mobile, tablet e desktop senza layout rotti o contenuti troncati."
+  },
+  "references": [
+    "dashboard.png",
+    "tabella-pratiche.png",
+    "fasi-pratica.png",
+    "pratica.png"
+  ]
+}
