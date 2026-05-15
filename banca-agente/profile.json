@@ -1,98 +1,243 @@
 {
-  "nome": "banca-agente",
-  "creato": "2026-05-12",
-  "aggiornato": "2026-05-12",
-  "codebase": [
-    {
-      "nome": "back-end",
-      "sigla": "BE",
-      "tipo": "backend",
-      "framework": "Spring Boot 3.2.0",
-      "linguaggio": "Java 21",
-      "database": "MySQL",
-      "orm": "Hibernate/JPA",
-      "mapping": "MapStruct 1.5.5",
-      "struttura": "layered (controller, service, repository, domain, dto, mapper, config, enumeration, error, utils, audit, scheduled, shared, connector, interceptor, annotation)",
-      "baseEntity": "it.deloitte.ba.backend.audit.Auditable<U> (createdBy, createdDate, lastModifiedBy, lastModifiedDate)",
-      "apiPrefix": "nessun prefix globale — path per controller (/admin-util, /assessment, /public/*, /assurance, /back-office/*)",
-      "testFramework": "JUnit 5 + Mockito + AssertJ",
-      "testNaming": "shouldXxxWhenYyy (es. shouldCreateCsvDataRecord)"
-    },
-    {
-      "nome": "front-end",
-      "sigla": "FE",
-      "tipo": "frontend",
-      "framework": "Angular 15",
-      "linguaggio": "TypeScript 4.9",
-      "struttura": "modulare per feature (module/agency-desk, module/autogreen, module/common, module/esgo, module/marketplace) + shared (class, const, directive, enum, helper, model, pipe, type, ui, validator) + service",
-      "prefixComponenti": "app",
-      "testFramework": "Karma + Jasmine",
-      "testNaming": "describe + it('should ...')",
-      "i18n": "@ngx-translate (assets/i18n/)",
-      "designSystem": {
-        "uiLibrary": "PrimeNG 15.2 + PrimeFlex 3.3",
-        "css": "SCSS",
-        "colori": {
-          "--primary-color": "teal/dark cyan (tema Agency Desk)",
-          "--brand-color": "variabile brand",
-          "--text-color": "variabile testo",
-          "--warning-color": "variabile warning",
-          "--surface-border": "variabile bordi",
-          "--primary-customer-600": "variante primario customer"
-        },
-        "font": "Space Grotesk (custom, assets/fonts/space-grotesk/)",
-        "temi": "agency-desk (cartella assets/css/themes/agency-desk)"
-      }
-    },
-    {
-      "nome": "email-manager",
-      "sigla": "EM",
-      "tipo": "backend",
-      "framework": "Spring Boot 3.2.0",
-      "linguaggio": "Java 21",
-      "database": "MySQL",
-      "orm": "Hibernate/JPA",
-      "mapping": "MapStruct 1.5.5",
-      "struttura": "layered (controller, service, repository, domain, config, util)",
-      "apiPrefix": "/public/email",
-      "extra": "spring-boot-starter-mail + Thymeleaf (template email)",
-      "testFramework": "JUnit 5"
-    },
-    {
-      "nome": "document-manager",
-      "sigla": "DM",
-      "tipo": "backend",
-      "framework": "Spring Boot 4.0.0",
-      "linguaggio": "Java 21",
-      "database": "MySQL (Aurora RDS AWS)",
-      "orm": "Hibernate/JPA",
-      "mapping": "MapStruct 1.6.3",
-      "struttura": "layered (controller, service, repository, model, dto, errors, config, util)",
-      "apiPrefix": "/api/public/document",
-      "extra": "Apache Tika 3.2.3 + Apache POI 5.5 + AWS S3",
-      "testFramework": "JUnit 5"
-    },
-    {
-      "nome": "gateway",
-      "sigla": "GA",
-      "tipo": "backend",
-      "framework": "Spring Boot 3.1.4 + Spring Cloud Gateway (WebFlux)",
-      "linguaggio": "Java 21",
-      "database": "nessuno",
-      "struttura": "minima (config, controller, service)",
-      "autenticazione": "JWT (jjwt 0.9.1)",
-      "testFramework": "JUnit 5 + Reactor Test"
-    }
-  ],
-  "principiInviolabili": {
-    "sicurezza": "Tutto il codice deve rispettare gli standard OWASP Top 10. Nessuna eccezione. Ogni endpoint, input utente, query e gestione dati sensibili deve essere verificata contro le 10 categorie OWASP prima del merge.",
-    "accessibilita": "Tutto il codice frontend deve rispettare i requisiti di accessibilità (WCAG). Ogni componente UI deve essere navigabile da tastiera, compatibile con screen reader, con contrasto adeguato e attributi ARIA corretti.",
-    "responsiveness": "Tutto il codice frontend deve essere responsive. Ogni vista e componente deve funzionare correttamente su mobile, tablet e desktop senza layout rotti o contenuti troncati."
+  "project": {
+    "name": "Banca Agente",
+    "client": "Intesa San Paolo (ISP)",
+    "description": "Piattaforma per la gestione delle pratiche di Banca Agente, garanzie (assurance), post-closing e compliance documentale. Supporta pratiche di tipo Banca Agente, SACE e Monitoraggio. Derivata dalla piattaforma EsGO, con personalizzazioni specifiche per ISP. Include integrazione GenAI per estrazione dati da documenti e generazione report automatici."
   },
-  "references": [
-    "dashboard.png",
-    "tabella-pratiche.png",
-    "fasi-pratica.png",
-    "pratica.png"
-  ]
+  "tech_stack": {
+    "backend": {
+      "language": "Java 21",
+      "framework": "Spring Boot 3.2.0",
+      "database": "MySQL (Aurora RDS AWS in prod)",
+      "orm": "Hibernate/JPA",
+      "build": "Maven"
+    },
+    "frontend": {
+      "language": "TypeScript 4.9",
+      "framework": "Angular 15",
+      "build": "Angular CLI"
+    },
+    "repositories": [
+      {
+        "name": "ba-back-end",
+        "abbreviation": "BE",
+        "type": "backend",
+        "description": "Backend principale — API REST, business logic, state machine pratiche, integrazioni esterne",
+        "framework": "Spring Boot 3.2.0",
+        "language": "Java 21",
+        "database": "MySQL",
+        "orm": "Hibernate/JPA",
+        "mapping": "MapStruct 1.5.5",
+        "additional_libs": [
+          "Lombok",
+          "ShedLock 4.42",
+          "Micrometer/Brave",
+          "iText7",
+          "Apache POI 5.2",
+          "Apache Tika 2.7",
+          "OpenCSV 5.9",
+          "Jsoup 1.16",
+          "Spring Retry 2.0",
+          "Spring Data Envers 3.0",
+          "Guava 31",
+          "Hibernate Types 60",
+          "PDFBox 3.0",
+          "Microsoft Graph SDK 5.75",
+          "Azure Identity SDK"
+        ]
+      },
+      {
+        "name": "ba-web",
+        "abbreviation": "FE",
+        "type": "frontend",
+        "description": "Frontend Angular — UI per Agency Desk, gestione pratiche, dashboard, post-closing",
+        "framework": "Angular 15",
+        "language": "TypeScript 4.9"
+      },
+      {
+        "name": "ba-email-manager",
+        "abbreviation": "EM",
+        "type": "backend",
+        "description": "Microservizio invio email con template Thymeleaf",
+        "framework": "Spring Boot 3.2.0",
+        "language": "Java 21",
+        "database": "MySQL",
+        "orm": "Hibernate/JPA",
+        "mapping": "MapStruct 1.5.5",
+        "api_prefix": "/public/email"
+      },
+      {
+        "name": "ba-document-manager",
+        "abbreviation": "DM",
+        "type": "backend",
+        "description": "Microservizio gestione documenti — upload/download su S3, validazione, duplicazione",
+        "framework": "Spring Boot 4.0.0",
+        "language": "Java 21",
+        "database": "MySQL (Aurora RDS AWS)",
+        "orm": "Hibernate/JPA",
+        "mapping": "MapStruct 1.6.3",
+        "additional_libs": ["Apache Tika 3.2.3", "Apache POI 5.5", "AWS S3 SDK"],
+        "api_prefix": "/api/public/document"
+      },
+      {
+        "name": "ba-gateway",
+        "abbreviation": "GA",
+        "type": "backend",
+        "description": "API Gateway — routing, autenticazione JWT, filtri di sicurezza",
+        "framework": "Spring Boot 3.1.4 + Spring Cloud Gateway (WebFlux)",
+        "language": "Java 21",
+        "authentication": "JWT (jjwt 0.9.1)"
+      }
+    ],
+    "infrastructure": {
+      "cloud": "AWS",
+      "container": "Jib (Amazon Corretto 21)",
+      "storage": "AWS S3 (bucket multipli per environment)",
+      "secrets": "Azure Key Vault",
+      "logging": "Logstash + Logback",
+      "tracing": "Micrometer + Brave",
+      "scheduling": "ShedLock (distributed locking)",
+      "code_quality": "SonarQube",
+      "api_generation": "OpenAPI Generator (client Egon)"
+    },
+    "integrations": {
+      "egon": "Geocoding e normalizzazione indirizzi (API: LST, Norm, To2xy, RevGeo)",
+      "infocert": "Firma digitale SPID OneShot (dossier creation + status)",
+      "cribis": "Credit report aziendali (BusinessCompanyReport SOAP)",
+      "iocr_genai": "Processing AI documenti — OCR, estrazione dati strutturati, generazione report automatici",
+      "rpa_bridge": "Automazione pratiche via RPA (create/update practice)",
+      "microsoft_graph": "Teams meetings (scheduling via Graph API)",
+      "aws_lambda": "Risk engine per physical risk assessment",
+      "document_manager": "Microservizio interno per upload/download/duplicazione documenti su S3",
+      "email_manager": "Microservizio interno per invio email con template"
+    }
+  },
+  "conventions": {
+    "package_structure": "it.deloitte.ba.backend.<layer> oppure it.deloitte.ba.backend.<layer>.<feature>",
+    "layers": [
+      "controller",
+      "service",
+      "repository",
+      "domain",
+      "dto",
+      "mapper",
+      "config",
+      "enumeration",
+      "error",
+      "utils",
+      "audit",
+      "scheduled",
+      "shared",
+      "connector",
+      "interceptor",
+      "annotation"
+    ],
+    "base_entity": "it.deloitte.ba.backend.audit.Auditable<U> (createdBy, createdDate, lastModifiedBy, lastModifiedDate)",
+    "api_prefix": "nessun prefix globale — path per controller (/admin-util, /assessment, /public/*, /assurance, /back-office/*, /agency-desk/*, /dashboard, /chatbot, /iocr, /csv, /financing-agreements, /post-closing/*, /import-users, /consultant/reports, /owner/reports)",
+    "test_framework": "JUnit 5 + Mockito + AssertJ",
+    "test_naming": "shouldXxxWhenYyy (es. shouldCreateCsvDataRecord)",
+    "branch_convention": "feature/<description>, release/sprint-wave-X.Y, main branch = develop",
+    "commit_convention": "conventional commits (fix:, feat:) con descrizione mista IT/EN",
+    "frontend": {
+      "module_structure": "modulare per feature (module/agency-desk, module/autogreen, module/common, module/esgo, module/marketplace) + shared (class, const, directive, enum, helper, model, pipe, type, ui, validator) + service",
+      "component_prefix": "app",
+      "test_framework": "Karma + Jasmine",
+      "test_naming": "describe + it('should ...')",
+      "i18n": "@ngx-translate (assets/i18n/)"
+    },
+    "inviolable_principles": {
+      "security": "Tutto il codice deve rispettare gli standard OWASP Top 10. Nessuna eccezione. Ogni endpoint, input utente, query e gestione dati sensibili deve essere verificata contro le 10 categorie OWASP prima del merge.",
+      "accessibility": "Tutto il codice frontend deve rispettare i requisiti di accessibilita' (WCAG). Ogni componente UI deve essere navigabile da tastiera, compatibile con screen reader, con contrasto adeguato e attributi ARIA corretti.",
+      "responsiveness": "Tutto il codice frontend deve essere responsive. Ogni vista e componente deve funzionare correttamente su mobile, tablet e desktop senza layout rotti o contenuti troncati."
+    }
+  },
+  "design_system": {
+    "palette": {
+      "--primary-color": "teal/dark cyan (tema Agency Desk)",
+      "--brand-color": "variabile brand",
+      "--text-color": "variabile testo",
+      "--warning-color": "variabile warning",
+      "--surface-border": "variabile bordi",
+      "--primary-customer-600": "variante primario customer"
+    },
+    "typography": {
+      "font_family": "Space Grotesk",
+      "font_source": "custom (assets/fonts/space-grotesk/)"
+    },
+    "components": {
+      "ui_library": "PrimeNG 15.2 + PrimeFlex 3.3",
+      "css_preprocessor": "SCSS",
+      "theme": "agency-desk (assets/css/themes/agency-desk)"
+    },
+    "reference_files": [
+      "references/dashboard.png",
+      "references/tabella-pratiche.png",
+      "references/fasi-pratica.png",
+      "references/pratica.png"
+    ]
+  },
+  "domain": {
+    "glossary": {
+      "Pratica (Practice)": "Entita' core — rappresenta una pratica bancaria che attraversa una state machine (PSM) con 26+ eventi. Tipi gestiti: Banca Agente, SACE, Monitoraggio",
+      "PSM (Practice State Machine)": "Macchina a stati che governa il workflow della pratica con eventi numerati (EVENT_1..EVENT_26 + varianti B). Tipi stato: PROGRESS_USER, PROGRESS_DELOITTE, REJECTION, SUCCESS, PRACTICE_FREEZED",
+      "Booking": "Prenotazione/appuntamento legato a una pratica. Include assegnazione lender (banche finanziatrici) e gestione NDG",
+      "Customer": "Entita' cliente — puo' essere BANK, GROUP o SUBSIDIARY. Al momento il solo customer gestito e' ISP (Intesa San Paolo)",
+      "Partner": "Partner/consulente esterno che opera sulle pratiche",
+      "Assurance (Garanzia)": "Garanzia/collaterale associata a una pratica. Tipi: Guarantees, Ipoteca, Pegno CC, Pegno merci crediti, Pegno quote azioni, Privilegio fixed charge",
+      "Post-Closing": "Fase post-chiusura per verifica documentale e processing GenAI. Include estrazione automatica dati, classificazione documenti e generazione report",
+      "Agency Desk": "Modulo operativo principale — gestione pratiche, garanzie, post-closing, dashboard, import CSV, report generati, sezione documenti",
+      "Independence": "Modulo compliance per questionari AML/indipendenza con step progressivi",
+      "Assessment": "Modulo valutazione rischio e compliance con questionari e scoring",
+      "Billing (Fatturazione)": "Gestione fatturazione con ciclo di vita: emissione, verifica ricevuta, pagamento. Include note di credito",
+      "Contract": "Gestione contratti con flusso firma digitale via Infocert SPID OneShot",
+      "ServiceItem / ServiceScope": "Catalogo servizi disponibili, ambiti di applicazione e fasi associate",
+      "Voucher Promozionale": "Voucher sconto per clienti con lifecycle (generazione, iscrizione, abbinamento pratica, scadenza)",
+      "Back-Office": "Area amministrativa per operatori Deloitte — gestione utenti, pratiche, fatturazione, company, disponibilita', call",
+      "NDG": "Numero di Gestione — identificativo univoco del rapporto bancario cliente-banca",
+      "Lender": "Banca finanziatrice che partecipa a una pratica di finanziamento",
+      "Egon": "Servizio esterno per geocoding, normalizzazione indirizzi, lookup coordinate (API LST, Norm, To2xy, RevGeo)",
+      "Infocert": "Servizio esterno firma digitale SPID OneShot — creazione dossier e verifica stato",
+      "Cribis": "Servizio esterno credit report aziende via SOAP (BusinessCompanyReport)",
+      "iOCR / GenAI": "Servizio AI per OCR documenti, estrazione dati strutturati e generazione report. Flusso: upload documento → classificazione → estrazione → verifica → validazione report",
+      "RPA Bridge": "Integrazione con bot RPA per automazione caricamento/aggiornamento pratiche (create/update/retry)",
+      "Formly": "Sistema form dinamici configurabili per raccolta dati pratica",
+      "ShedLock": "Distributed locking per job schedulati — evita esecuzioni concorrenti su multi-istanza",
+      "Financing Agreement": "Convenzione di finanziamento — accordo quadro tra banca e soggetto finanziato"
+    },
+    "business_rules": [
+      "La pratica attraversa una PSM con 26+ eventi — ogni transizione e' governata da PsmEventNameEnum",
+      "Tipi pratica gestiti: Banca Agente, SACE, Monitoraggio (in arrivo da feature/monitoring)",
+      "I customer sono di 3 tipi: BANK, GROUP, SUBSIDIARY — al momento solo ISP e' attivo",
+      "Ruoli utente: OWNER, ADMIN, CONSULTANT, ADMIN_ACCOUNTANT — permessi customizzabili per company",
+      "6 tipi di garanzia: Guarantees, Ipoteca, Pegno CC, Pegno merci crediti, Pegno quote azioni, Privilegio fixed charge",
+      "Il post-closing ha un flusso GenAI con stati sezione: incompleta → completa → estrazione AI in corso → verifica estrazione → validazione report → report generato",
+      "La fatturazione segue un ciclo: non lavorabile → ricevuta da verificare → verificata → da pagare → da emettere → in review → pagata",
+      "I contratti hanno flusso firma: da firmare → firmato (via Infocert SPID OneShot)",
+      "I voucher promozionali seguono un lifecycle: generato → iscrizione → pratica avviata → pratica associata → voucher abbinato (oppure scaduto/disabilitato/inutilizzato)",
+      "I report generati richiedono validazione: in attesa di validazione → validato / declinato",
+      "I documenti post-closing attendono classificazione: waiting → classified / deleted",
+      "Il login ha protezione brute-force: max 3 tentativi con lockout di 2 minuti",
+      "Autenticazione JWT con durata token 22 ore, primo step login 5 minuti (2FA TOTP)",
+      "Piattaforma derivata da EsGO — moduli legacy ancora presenti nel frontend (autogreen, marketplace, esgo) ma non utilizzati per Banca Agente",
+      "Upload file max 350MB per richiesta",
+      "Booking con deduplicazione lender per evitare duplicati"
+    ],
+    "entity_states": {
+      "Practice_PSM": ["PROGRESS_USER", "PROGRESS_DELOITTE", "REJECTION", "SUCCESS", "PRACTICE_FREEZED"],
+      "PracticeRequest": ["PENDING", "VALIDATED", "REJECTED"],
+      "PracticeOutcome": ["OK", "KO", "IN_PROGRESS"],
+      "Booking": ["INSERTED_BOOKING", "CANCELLED"],
+      "Contract": ["TO_SIGN", "SIGNED"],
+      "Billing": ["BILL_NOT_WORKABLE", "RECEIPT_LOADED", "RECEIPT_VALIDATED", "TO_PAY", "TO_BE_ISSUED", "IN_REVIEW", "PAID"],
+      "Record": ["WAITING_RESERVATION", "INSUFFICIENT_FUNDS", "FAILED_PRACTICE_LOADING", "PRACTICE_LOADED", "DECLINED_DEPOSIT_DATA", "RECHARGED_DEPOSIT_DATA", "WAITING_FOR_LOADING", "FAILED_DOCUMENTS_LOADING", "DOCUMENTS_LOADED", "WAITING_CANCELLATION", "CANCEL_CONFIRMED", "CANCELLED"],
+      "Assignment": ["ASSIGNED", "NOT_ASSIGNED"],
+      "PromotionalVoucher": ["GENERATED", "REGISTERED", "PRACTICE_STARTED", "PRACTICE_ASSIGNED", "VOUCHER_ASSIGNED", "EXPIRED", "VOUCHER_NOT_USED", "DISABLED"],
+      "GeneratedReport": ["TO_BE_VALIDATED", "VALIDATED", "REJECTED"],
+      "PostClosingDocument": ["WAITING", "CLASSIFIED", "DELETED"],
+      "SectionState": ["SECTION_INCOMPLETE", "SECTION_COMPLETE", "SECTION_COMPLETE_AI_EXTRACTION_IN_PROGRESS", "SECTION_COMPLETE_AI_TO_VERIFY_EXTRACTION", "SECTION_COMPLETE_AI_TO_VALIDATE_REPORT", "SECTION_REPORT_GENERATED"],
+      "AssurancePerfection": ["ASSURANCE_DOC", "PERFECTION", "TRANSCRIPTION_NOTE", "POLICY"]
+    },
+    "practice_types": ["Banca Agente", "SACE", "Monitoraggio (in arrivo da feature/monitoring)"],
+    "base_platform": "EsGO — piattaforma ESG/compliance da cui Banca Agente e' stata derivata. Moduli legacy ancora presenti nel frontend (autogreen, marketplace, esgo) ma non attivi per il cliente ISP"
+  }
 }
