@@ -1,6 +1,8 @@
 # Deloitte Profiles
 
-Centralized project profiles for the BR Skills ecosystem. Each project maintains a `profile.json` that captures its tech stack, conventions, design system, domain knowledge, and custom agents. The BR skills (`br-analyzer`, `br-executor`, `br-reviewer`, `br-updater`, `br-debug`) read these profiles to generate context-aware output without repeated manual configuration.
+Repository centralizzato dei profili progetto e degli artefatti dei Business Requirement (BR) per l'ecosistema BR Skills. Ogni progetto mantiene un `constitution/profile.json` che cattura il suo tech stack, le convenzioni, il design system, la conoscenza di dominio e gli agenti custom. Le BR skills (`br-analyzer`, `br-executor`, `br-reviewer`, `br-updater`, `br-debug`, `br-estimator`, `br-clarify`, `br-progress-report`) leggono questi profili per generare output contestualizzato senza configurazione manuale ripetuta.
+
+Tutti gli artefatti BR (piani di implementazione, report di gap, progressi, stime, bug report, screenshot) sono centralizzati qui, non piu' nelle repo del codice. Le repo applicative restano focalizzate sul solo codice sorgente.
 
 ## Directory Structure
 
@@ -8,20 +10,43 @@ Centralized project profiles for the BR Skills ecosystem. Each project maintains
 deloitte-profiles/
 ├── profile-schema.json          # JSON Schema for profile validation
 ├── README.md
-├── project-alpha/
-│   ├── profile.json             # Project profile (validated against schema)
-│   ├── agents/                  # Optional: custom agent .md files
-│   │   └── domain-expert.md
-│   └── references/              # Optional: design refs, mockups, style guides
-│       └── palette.png
-├── project-beta/
-│   ├── profile.json
-│   └── agents/
-│       └── legacy-migrator.md
+├── <nome-progetto>/
+│   ├── constitution/
+│   │   └── profile.json         # configurazione progetto (tech stack, dominio, design system)
+│   ├── agents/                  # agenti custom .md per questo progetto (opzionale)
+│   ├── references/              # mockup, screenshot, style guide, codice gold-standard
+│   └── plans/                   # ciclo di vita dei Business Requirement
+│       ├── todo/                # BR in attesa di lavorazione
+│       │   └── <data>_<nome-br>/
+│       │       ├── requirements/   # documentazione BR convertita in markdown
+│       │       ├── REVIEW_BR.md
+│       │       ├── REVIEW_BR.docx
+│       │       ├── GAP_REPORT_BR.md
+│       │       ├── PIANO_IMPLEMENTAZIONE_BR.md
+│       │       └── STIMA_BR.md / .xlsx
+│       ├── in-progress/         # BR in lavorazione
+│       │   └── <data>_<nome-br>/
+│       │       ├── (tutti i file da todo +)
+│       │       ├── PROGRESSO_BR.md
+│       │       ├── BUG_REPORT_BR.md
+│       │       ├── AVANZAMENTO_BR.xlsx
+│       │       └── screenshots/
+│       └── done/                # BR completati (archivio storico)
+│           └── <data>_<nome-br>/
 └── ...
 ```
 
-Each project gets its own directory. The directory name is typically the project slug (lowercase, hyphens).
+Ogni progetto ha la propria directory. Il nome della directory e' tipicamente lo slug del progetto (minuscolo, trattini).
+
+### Ciclo di vita di un BR
+
+Un BR si muove tra le cartelle `plans/` in base al suo stato:
+
+1. **`todo/`** -- BR appena ricevuto. Contiene la documentazione funzionale convertita in markdown sotto `requirements/`, l'eventuale review qualita' (`REVIEW_BR.md/.docx`), il gap report (`GAP_REPORT_BR.md`), il piano di implementazione (`PIANO_IMPLEMENTAZIONE_BR.md`) e la stima (`STIMA_BR.md` / `.xlsx`).
+2. **`in-progress/`** -- BR in lavorazione. Contiene tutti i file di `todo/` piu' il file di progresso (`PROGRESSO_BR.md`), gli eventuali bug raccolti (`BUG_REPORT_BR.md`), l'Excel di avanzamento (`AVANZAMENTO_BR.xlsx`) e gli screenshot prodotti durante il debug.
+3. **`done/`** -- BR completati e validati. Archivio storico utile per consultazione e riuso di pattern.
+
+Lo spostamento tra cartelle e' gestito dalle skill (`br-analyzer` crea in `todo/`, `br-executor` sposta in `in-progress/` alla prima esecuzione, la chiusura del BR sposta in `done/`).
 
 ## Profile Sections
 
@@ -44,11 +69,11 @@ Use the `br-profile-setup` skill to scaffold a new project profile interactively
 /br-profile-setup
 ```
 
-This walks through the tech stack, conventions, and domain details, then writes the `profile.json` and creates the project directory in this repo.
+Esegue auto-detect sul codebase, fa domande guidate su dominio e design system, e scrive `constitution/profile.json` insieme alla struttura di cartelle (`agents/`, `references/`, `plans/{todo,in-progress,done}/`) nel progetto.
 
 ### Local Configuration
 
-Each project repository contains a `.br-local.json` file that points to its profile:
+Ogni repository di progetto contiene un file `.br-local.json` che punta al suo profilo:
 
 ```json
 {
@@ -57,16 +82,18 @@ Each project repository contains a `.br-local.json` file that points to its prof
 }
 ```
 
-- `profilo` -- the directory name inside this repo
-- `profiles_repo` -- absolute path to this repository on the developer's machine
+- `profilo` -- nome della directory di progetto in questo repo
+- `profiles_repo` -- path assoluto a questo repository sulla macchina dello sviluppatore
+
+Le BR skills risolvono il profilo come `<profiles_repo>/<profilo>/constitution/profile.json` e cercano gli artefatti BR sotto `<profiles_repo>/<profilo>/plans/`.
 
 ### Auto-Sync
 
-BR skills pull the latest profiles via `git pull` before reading. No manual sync is needed as long as profiles are committed and pushed after changes.
+Le BR skills eseguono `git pull` sui profili prima di leggere. Non e' necessaria alcuna sincronizzazione manuale finche' i profili vengono committati e pushati dopo le modifiche.
 
 ### Auto-Maintenance
 
-`br-analyzer` updates the profile automatically when it detects new conventions, dependencies, or domain terms during gap analysis. Changes are committed back to this repo.
+`br-analyzer` aggiorna il profilo automaticamente quando rileva nuove convenzioni, dipendenze o termini di dominio durante la gap analysis. Le modifiche vengono committate in questo repo.
 
 ## Custom Agents
 
@@ -100,4 +127,4 @@ Store design references, mockups, exported tokens, or style guides in the `refer
 
 ## Schema Validation
 
-All `profile.json` files are validated against `profile-schema.json` (JSON Schema Draft 2020-12). BR skills validate on load and report errors before proceeding.
+Tutti i file `constitution/profile.json` sono validati contro `profile-schema.json` (JSON Schema Draft 2020-12). Le BR skills validano al caricamento e segnalano gli errori prima di procedere.
