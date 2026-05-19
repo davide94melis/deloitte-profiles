@@ -1,7 +1,7 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-18 16:44` (aggregato cross-branch)
+Ultimo aggiornamento: `2026-05-19 09:30` (audit cross-branch by Davide)
 
 ## Riepilogo
 
@@ -9,10 +9,10 @@ Ultimo aggiornamento: `2026-05-18 16:44` (aggregato cross-branch)
 |---|---|
 | Task totali | 31 |
 | Completate | 23 |
-| In corso | 1 |
-| Da iniziare | 7 |
+| In corso | 4 |
+| Da iniziare | 4 |
 | Bloccate | 0 |
-| Progresso complessivo | 77% |
+| Progresso complessivo | 84% |
 
 ## Stato Task
 
@@ -27,17 +27,17 @@ Ultimo aggiornamento: `2026-05-18 16:44` (aggregato cross-branch)
 | T-007 | Service + Controller pratiche monitoring | Davide | 100% | Completata | feature/monitoring-practice-service | Service, controller, repository, filter DTO, Excel export, createFromPostClosing trigger, terminatePractice con stato CONCLUSA, 6 PSM states monitoring. Build OK. |
 | T-008 | Service + Controller covenant + eventi | Ahmad | 100% | Completata | feature/monitoring-covenant-events-service | 3 file: CovenantController, CovenantService, EventService. 372 righe. |
 | T-009 | Dashboard monitoring BE endpoints | Ahmad | 100% | Completata | feature/monitoring-dashboard-be | 4 file: DashboardController, DashboardService, DashboardSummaryDTO, DashboardEventDTO |
-| T-010 | Dashboard monitoring FE | Carmine | 0% | Da iniziare | — | Bloccata da T-MERGE-004 e T-009 |
+| T-010 | Dashboard monitoring FE | Carmine | 95% | Da revieware | feature/monitoring-dashboard-fe | Audit 2026-05-19: tutti i requisiti implementati (donut 6 segmenti, polling 60s, 3 tabelle 13/13/12 col). Autore reale: Georgios. Mancano test unitari. |
 | T-011 | Tabella pratiche monitoring FE | Georgios | 100% | Completata | feature/monitoring-practices-table-fe | 4 file FE + 2 i18n. Build OK. |
 | T-012 | Dettaglio pratica ISP — header + tab scaffold | Adham | 100% | Completata | feature/monitoring-practice-detail-isp | Header, 3 tab, covenant cards, 3 accordion, 31 test. Build OK. |
 | T-013 | Scadenziere unificato + dettaglio covenant singolo | Georgios | 100% | Completata | feature/monitoring-schedule-covenant-detail | BE: schedule endpoint + DTO esteso. FE: schedule-tab + covenant-detail dialog. Build OK. |
 | T-014 | Upload Compliance Certificate + storico documenti | Alexios | 100% | Completata | feature/monitoring-upload-cc-documents | BE: service+controller+migration. FE: upload+history components, i18n. Build OK. |
 | T-015 | Spread BE — service + controller (2 tabelle distinte) | Ahmad | 100% | Completata | feature/monitoring-spread-be | SpreadService (7 methods), SpreadController (7 endpoints), 14 unit test. |
 | T-016 | Spread FE — 2 tabelle distinte (ISP + Deloitte) | Georgios | 100% | Completata | feature/monitoring-spread-fe | SpreadTabComponent: 2 tabelle, inline edit, CRUD, validazione, role-gating, 20 unit test. |
-| T-017 | Flusso Deloitte — conferma/rifiuta + assegnazione CC manuale | Alexios | 90% | In corso | feature/monitoring-deloitte-flow | Role-gating confirm/reject + CC assignment dialog. BE: no changes needed (endpoints from T-014). FE: build OK. |
+| T-017 | Flusso Deloitte — conferma/rifiuta + assegnazione CC manuale | Alexios | 85% | In corso | feature/monitoring-deloitte-flow | Audit 2026-05-19: role-gating + CC assignment OK. Wizard 4 step invece di 6 (UX divergente da spec). Mancano test cc-assignment.spec.ts e document-history.spec.ts. |
 | T-018 | Flusso Deloitte — GenAI + modifica dati covenant | Davide | 0% | Da iniziare | — | Bloccata da T-017 |
-| T-019 | Eccezioni ISP + gestione Deloitte | Adham | 0% | Da iniziare | — | Bloccata da T-MERGE-004 e T-MERGE-008 |
-| T-020 | Upload COVNO/DB Obblighi + card dashboard | Alexios | 0% | Da iniziare | — | Bloccata da T-MERGE-008 |
+| T-019 | Eccezioni ISP + gestione Deloitte | Adham | 50% | In corso | feature/monitoring-exceptions | Audit 2026-05-19: BE 95% (endpoint+service+7 test OK, serve rebase su feature/monitoring); FE 30% (dialog standalone esiste con 33 test, ma NON wired: module non importato in practice-detail, dialog mai renderizzato, action column inerte, monitoring.service.requestException usa JSON invece di multipart → 415/400 a runtime). BLOCKER per T-MERGE-FINAL. |
+| T-020 | Upload COVNO/DB Obblighi + card dashboard | Alexios | 85% | Da revieware | feature/monitoring-covno-upload | Audit 2026-05-19: BE+FE implementati. CovnoUploadService (parseXlsx POI, mergeData priorità AUTO<COVNO<MANUAL_DELOITTE per A-011), CovnoController endpoints, entity CovnoUploadHistory, migration 005, dashboard card + dialog upload + storico, i18n IT/EN 22 chiavi. Autore: Alexios (myzonalexios). Mancano test BE (CovnoUploadServiceTest) e FE (dashboard spec aggiornato). |
 | T-021 | Pagine complete Scaduti + In Scadenza | Adham | 0% | Da iniziare | — | Bloccata da T-010 e T-MERGE-008 |
 | T-022 | Mailing List completo | Georgios | 100% | Completata | feature/monitoring-mailing-list | BE: MailingListService, Controller, AdForm entity+migration, 31 test. FE: main page+detail, i18n. Build OK. |
 | T-023 | Email templates + scheduled jobs | Davide | 100% | Completata | feature/monitoring-notifications-jobs | 7 enum email, MonitoringSchedulerService, 4 @Scheduled jobs, 7 template HTML (EM). Build OK. |
@@ -72,3 +72,13 @@ Ultimo aggiornamento: `2026-05-18 16:44` (aggregato cross-branch)
 - **T-006 completata (Alexios)**: Branch `feature/monitoring-state-machine`. Creati 3 service: MonitoringStateService, MonitoringIdGeneratorService, MonitoringScheduleGeneratorService. Build: SUCCESS.
 - **T-007 completata (Davide)**: 5 file + createFromPostClosing + terminatePractice + trigger auto-creazione + 6 PSM states. Build: SUCCESS.
 - **T-MERGE-006 completata (Davide)**: fast-forward merge T-006 + T-007 in feature/monitoring. Build: SUCCESS. T-008 sbloccata.
+
+### 2026-05-19
+- **Audit cross-branch (Davide, BE Senior)**: verifica stato reale di 4 task marcate come "Da iniziare" o "In corso" nel PROGRESS ma con commit presenti sui branch remoti. Risultati:
+  - **T-010** (Dashboard FE) — passata da 0% Da iniziare a **95% Da revieware**. Tutti i requisiti del piano implementati (donut chart 6 segmenti con palette esatta, polling 60s pattern corretto, 3 tabelle con conteggio colonne 13/13/12). Autore reale del commit: Georgios (non Carmine). Manca solo test unitario (`dashboard.component.spec.ts`).
+  - **T-017** (Deloitte flow) — riassesata da 90% In corso a **85% In corso**. Implementazione funzionalmente corretta (role-gating + CC assignment dialog + FormGroup reattivo) ma wizard a 4 step invece dei 6 step espliciti previsti dal piano (Step 4/5/6 collassati in unico "Assegna"). Mancano test (`cc-assignment.component.spec.ts`, `document-history.component.spec.ts`).
+  - **T-019** (Eccezioni) — passata da 0% Da iniziare a **50% In corso**. BE 95% (7 test passanti, branch BE behind di feature/monitoring → serve rebase). FE 30%: il dialog `exception-dialog.component` esiste con 33 test passanti ma è completamente DISCONNESSO dal flusso utente — `MonitoringExceptionDialogModule` non importato in `MonitoringPracticeDetailModule`, selettore mai usato in template parent, action column ha label statica senza click handler, e `monitoring.service.requestException` invia JSON invece di multipart (415/400 a runtime). **BLOCKER per T-MERGE-FINAL**.
+  - **T-020** (Covno upload) — passata da 0% Da iniziare a **85% Da revieware**. Implementazione BE (CovnoUploadService con parseXlsx Apache POI, mergeData con priorità A-011, CovnoUploadHistory entity, migration 005, MonitoringDataSourceEnum) + FE (card dashboard COVNO, dialog upload, dialog storico, i18n IT/EN 22 chiavi) completa. Autore: Alexios. Mancano test BE (CovnoUploadServiceTest) e FE.
+- **Disallineamento PROGRESS rilevato**: alcuni sviluppatori (Adham, Alexios, Carmine→Georgios) hanno pushato codice senza aggiornare il PROGRESS.md. Procedura "Aggiornamento del progresso" della skill sdlc-executor da rinforzare.
+- **Conseguenza per T-MERGE-FINAL**: bloccata da T-019 (FE wiring mancante). T-MERGE-FINAL può partire solo dopo fix integrazione FE eccezioni.
+- **Sblocchi**: T-018 (GenAI) tecnicamente sbloccata (T-017 sostanzialmente completa, gap solo su test/UX).
