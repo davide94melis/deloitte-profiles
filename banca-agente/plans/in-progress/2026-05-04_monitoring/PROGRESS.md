@@ -1,18 +1,18 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-19 09:30` (audit cross-branch by Davide)
+Ultimo aggiornamento: `2026-05-20 00:30` (T-019 completata da Davide)
 
 ## Riepilogo
 
 | Metrica | Valore |
 |---|---|
 | Task totali | 31 |
-| Completate | 23 |
-| In corso | 4 |
+| Completate | 24 |
+| In corso | 3 |
 | Da iniziare | 4 |
 | Bloccate | 0 |
-| Progresso complessivo | 84% |
+| Progresso complessivo | 86% |
 
 ## Stato Task
 
@@ -36,7 +36,7 @@ Ultimo aggiornamento: `2026-05-19 09:30` (audit cross-branch by Davide)
 | T-016 | Spread FE — 2 tabelle distinte (ISP + Deloitte) | Georgios | 100% | Completata | feature/monitoring-spread-fe | SpreadTabComponent: 2 tabelle, inline edit, CRUD, validazione, role-gating, 20 unit test. |
 | T-017 | Flusso Deloitte — conferma/rifiuta + assegnazione CC manuale | Alexios | 85% | In corso | feature/monitoring-deloitte-flow | Audit 2026-05-19: role-gating + CC assignment OK. Wizard 4 step invece di 6 (UX divergente da spec). Mancano test cc-assignment.spec.ts e document-history.spec.ts. |
 | T-018 | Flusso Deloitte — GenAI + modifica dati covenant | Davide | 0% | Da iniziare | — | Bloccata da T-017 |
-| T-019 | Eccezioni ISP + gestione Deloitte | Adham | 50% | In corso | feature/monitoring-exceptions | Audit 2026-05-19: BE 95% (endpoint+service+7 test OK, serve rebase su feature/monitoring); FE 30% (dialog standalone esiste con 33 test, ma NON wired: module non importato in practice-detail, dialog mai renderizzato, action column inerte, monitoring.service.requestException usa JSON invece di multipart → 415/400 a runtime). BLOCKER per T-MERGE-FINAL. |
+| T-019 | Eccezioni ISP + gestione Deloitte | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-exceptions | 2026-05-20 (Davide): merge feature/monitoring in branch (risolti conflitti su MonitoringEventService.java import LocalDateTime/ChronoUnit, MonitoringEventServiceTest.java unione 44 test). FE wiring: import MonitoringExceptionDialogModule in practice-detail.module, wire `<app-monitoring-exception-dialog>` con @ViewChild, action column buildActionCell role-gated (ISP: Salta/Ignora/Visualizza; Deloitte: Annulla), monitoring.service.requestException → FormData multipart, getExceptionDocument GET Blob. Fix test preesistenti exception-dialog.spec.ts (ButtonModule + CUSTOM_ELEMENTS_SCHEMA + stub post-detectChanges). Risultato: 27 test exception-dialog + 32 test practice-detail + 5 test monitoring.service = 64/64 verdi. BE: build SUCCESS, test MonitoringEventServiceTest 44 verdi. Branch da pushare. |
 | T-020 | Upload COVNO/DB Obblighi + card dashboard | Alexios | 85% | Da revieware | feature/monitoring-covno-upload | Audit 2026-05-19: BE+FE implementati. CovnoUploadService (parseXlsx POI, mergeData priorità AUTO<COVNO<MANUAL_DELOITTE per A-011), CovnoController endpoints, entity CovnoUploadHistory, migration 005, dashboard card + dialog upload + storico, i18n IT/EN 22 chiavi. Autore: Alexios (myzonalexios). Mancano test BE (CovnoUploadServiceTest) e FE (dashboard spec aggiornato). |
 | T-021 | Pagine complete Scaduti + In Scadenza | Adham | 0% | Da iniziare | — | Bloccata da T-010 e T-MERGE-008 |
 | T-022 | Mailing List completo | Georgios | 100% | Completata | feature/monitoring-mailing-list | BE: MailingListService, Controller, AdForm entity+migration, 31 test. FE: main page+detail, i18n. Build OK. |
@@ -82,3 +82,17 @@ Ultimo aggiornamento: `2026-05-19 09:30` (audit cross-branch by Davide)
 - **Disallineamento PROGRESS rilevato**: alcuni sviluppatori (Adham, Alexios, Carmine→Georgios) hanno pushato codice senza aggiornare il PROGRESS.md. Procedura "Aggiornamento del progresso" della skill sdlc-executor da rinforzare.
 - **Conseguenza per T-MERGE-FINAL**: bloccata da T-019 (FE wiring mancante). T-MERGE-FINAL può partire solo dopo fix integrazione FE eccezioni.
 - **Sblocchi**: T-018 (GenAI) tecnicamente sbloccata (T-017 sostanzialmente completa, gap solo su test/UX).
+
+### 2026-05-20
+- **T-019 completata (Davide, recovery FE wiring)**: durata sessione ~2h. Risolto BLOCKER T-MERGE-FINAL.
+  - **BE merge**: branch `feature/monitoring-exceptions` rebased contro `origin/feature/monitoring`. Conflitti risolti su `MonitoringEventService.java` (import LocalDateTime+ChronoUnit insieme; combinazione metodi `getExceptionDocuments` con `findScheduleByPractice`) e `MonitoringEventServiceTest.java` (sub-agent generale: unione 44 test totali da entrambi i branch, mock MonitoringDocumentRepository + stato @InjectMocks 3-deps; adattati 3 test origin a nuova signature 3-param requestException).
+  - **FE wiring** (sub-agent generale, ~30min): aggiunto import `MonitoringExceptionDialogModule` in `practice-detail.module.ts`, renderizzato `<app-monitoring-exception-dialog #exceptionDialog>` in template con `@ViewChild`, refattorizzato `buildActionCell()` con `DynamicComponentModel<ButtonComponent>` role-gated (ISP: Salta/Ignora/Visualizza; Deloitte: Annulla; nessuna action per Deloitte su evento senza eccezione), aggiunto `getExceptionDocument` su service. Fix critico `monitoring.service.requestException`: ora costruisce `FormData` con `motivation` + `file?` opzionale e invia con `httpClient.post` (`RestService` non supporta override Content-Type per multipart).
+  - **Fix test preesistenti exception-dialog.spec.ts** (bug Adham mai eseguito): cambiato `NO_ERRORS_SCHEMA → CUSTOM_ELEMENTS_SCHEMA`, importato `ButtonModule` per consentire al template di renderizzare `<app-button [style]="buttonEnum.*">` correttamente, spostata assegnazione `dialogStub` DOPO `fixture.detectChanges()` per evitare override da ViewChild.
+  - **Risultato verifiche**:
+    - Fase A (tecnica): BE `mvn clean compile`: SUCCESS. BE `mvn test -Dtest=MonitoringEventServiceTest`: PASS. FE `ng test`: 64/64 verdi (27 exception-dialog + 32 practice-detail + 5 monitoring.service).
+    - Fase B (coerenza): tutti 11 requisiti T-019 (5 FE + 3 BE + 3 service) verificati con file:linea citato.
+    - Fase C (riesame): codice nei limiti progetto (<800 righe/file, <50/metodo), AAA pattern test, role-gating coerente, nessun magic number.
+  - **File modificati BE** (18): merge da feature/monitoring + risoluzione conflitti su 2 file. Tutti i nuovi entry sono allineamenti.
+  - **File modificati FE** (6): `practice-detail.{component.ts, component.html, component.spec.ts, module.ts}` + `monitoring.service.ts` + `exception-dialog.component.spec.ts`. Aggiunto `monitoring.service.spec.ts` (nuovo, 5 test).
+  - **Pronto per commit**: branch BE `feature/monitoring-exceptions` (merge commit), branch FE `feature/monitoring-exceptions` (5 file modificati + 1 nuovo). Sviluppatore deve eseguire commit+push.
+  - **T-MERGE-FINAL** ora sbloccata. T-MERGE-FINAL dipende ancora dal commit+push dei branch T-017 e T-020 (entrambi al ~85% per gap test).
