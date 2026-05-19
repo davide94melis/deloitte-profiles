@@ -1,6 +1,6 @@
 # Deloitte Profiles
 
-Repository centralizzato dei profili progetto e degli artefatti dei Business Requirement (BR) per l'ecosistema BR Skills. Ogni progetto mantiene un `constitution/profile.json` che cattura il suo tech stack, le convenzioni, il design system, la conoscenza di dominio e gli agenti custom. Le BR skills (`br-analyzer`, `br-executor`, `br-reviewer`, `br-updater`, `br-debug`, `br-estimator`, `br-clarify`, `br-progress-report`) leggono questi profili per generare output contestualizzato senza configurazione manuale ripetuta.
+Repository centralizzato dei profili progetto e degli artefatti dei Business Requirement (BR) per l'ecosistema SDLC Skills. Ogni progetto mantiene un `constitution/profile.json` che cattura il suo tech stack, le convenzioni, il design system, la conoscenza di dominio e gli agenti custom. Le SDLC skills (`sdlc-analyzer`, `sdlc-executor`, `sdlc-reviewer`, `sdlc-updater`, `sdlc-debug`, `sdlc-estimator`, `sdlc-clarify`, `sdlc-progress-report`) leggono questi profili per generare output contestualizzato senza configurazione manuale ripetuta.
 
 Tutti gli artefatti BR (piani di implementazione, report di gap, progressi, stime, bug report, screenshot) sono centralizzati qui, non piu' nelle repo del codice. Le repo applicative restano focalizzate sul solo codice sorgente.
 
@@ -19,10 +19,10 @@ deloitte-profiles/
 │       ├── todo/                # BR in attesa di lavorazione
 │       │   └── <data>_<nome-br>/
 │       │       ├── requirements/   # documentazione BR convertita in markdown
-│       │       ├── REVIEW_BR.md
-│       │       ├── REVIEW_BR.docx
-│       │       ├── GAP_REPORT_BR.md
-│       │       ├── PIANO_IMPLEMENTAZIONE_BR.md
+│       │       ├── CLARIFY.md
+│       │       ├── CLARIFY.docx
+│       │       ├── PLAN.md
+│       │       ├── TASKS.md
 │       │       └── STIMA_BR.md / .xlsx
 │       ├── in-progress/         # BR in lavorazione
 │       │   └── <data>_<nome-br>/
@@ -42,11 +42,11 @@ Ogni progetto ha la propria directory. Il nome della directory e' tipicamente lo
 
 Un BR si muove tra le cartelle `plans/` in base al suo stato:
 
-1. **`todo/`** -- BR appena ricevuto. Contiene la documentazione funzionale convertita in markdown sotto `requirements/`, l'eventuale review qualita' (`REVIEW_BR.md/.docx`), il gap report (`GAP_REPORT_BR.md`), il piano di implementazione (`PIANO_IMPLEMENTAZIONE_BR.md`) e la stima (`STIMA_BR.md` / `.xlsx`).
+1. **`todo/`** -- BR appena ricevuto. Contiene la documentazione funzionale convertita in markdown sotto `requirements/`, l'eventuale review qualita' (`CLARIFY.md/.docx`), il gap report (`PLAN.md`), il piano di implementazione (`TASKS.md`) e la stima (`STIMA_BR.md` / `.xlsx`).
 2. **`in-progress/`** -- BR in lavorazione. Contiene tutti i file di `todo/` piu' il file di progresso (`PROGRESSO_BR.md`), gli eventuali bug raccolti (`BUG_REPORT_BR.md`), l'Excel di avanzamento (`AVANZAMENTO_BR.xlsx`) e gli screenshot prodotti durante il debug.
 3. **`done/`** -- BR completati e validati. Archivio storico utile per consultazione e riuso di pattern.
 
-Lo spostamento tra cartelle e' gestito dalle skill (`br-analyzer` crea in `todo/`, `br-executor` sposta in `in-progress/` alla prima esecuzione, la chiusura del BR sposta in `done/`).
+Lo spostamento tra cartelle e' gestito dalle skill (`sdlc-analyzer` crea in `todo/`, `sdlc-executor` sposta in `in-progress/` alla prima esecuzione, la chiusura del BR sposta in `done/`).
 
 ## Profile Sections
 
@@ -63,10 +63,10 @@ Lo spostamento tra cartelle e' gestito dalle skill (`br-analyzer` crea in `todo/
 
 ### Initial Setup
 
-Use the `br-profile-setup` skill to scaffold a new project profile interactively:
+Use the `sdlc-profile-setup` skill to scaffold a new project profile interactively:
 
 ```
-/br-profile-setup
+/sdlc-profile-setup
 ```
 
 Esegue auto-detect sul codebase, fa domande guidate su dominio e design system, e scrive `constitution/profile.json` insieme alla struttura di cartelle (`agents/`, `references/`, `plans/{todo,in-progress,done}/`) nel progetto.
@@ -85,15 +85,15 @@ Ogni repository di progetto contiene un file `.br-local.json` che punta al suo p
 - `profilo` -- nome della directory di progetto in questo repo
 - `profiles_repo` -- path assoluto a questo repository sulla macchina dello sviluppatore
 
-Le BR skills risolvono il profilo come `<profiles_repo>/<profilo>/constitution/profile.json` e cercano gli artefatti BR sotto `<profiles_repo>/<profilo>/plans/`.
+Le SDLC skills risolvono il profilo come `<profiles_repo>/<profilo>/constitution/profile.json` e cercano gli artefatti BR sotto `<profiles_repo>/<profilo>/plans/`.
 
 ### Auto-Sync
 
-Le BR skills eseguono `git pull` sui profili prima di leggere. Non e' necessaria alcuna sincronizzazione manuale finche' i profili vengono committati e pushati dopo le modifiche.
+Le SDLC skills eseguono `git pull` sui profili prima di leggere. Non e' necessaria alcuna sincronizzazione manuale finche' i profili vengono committati e pushati dopo le modifiche.
 
 ### Auto-Maintenance
 
-`br-analyzer` aggiorna il profilo automaticamente quando rileva nuove convenzioni, dipendenze o termini di dominio durante la gap analysis. Le modifiche vengono committate in questo repo.
+`sdlc-analyzer` aggiorna il profilo automaticamente quando rileva nuove convenzioni, dipendenze o termini di dominio durante la gap analysis. Le modifiche vengono committate in questo repo.
 
 ## Custom Agents
 
@@ -108,7 +108,7 @@ Place project-specific agent `.md` files in the project's `agents/` directory an
 }
 ```
 
-These agents are loaded by BR skills when working on the project, providing specialized behaviors (e.g., domain validation rules, migration patterns).
+These agents are loaded by SDLC skills when working on the project, providing specialized behaviors (e.g., domain validation rules, migration patterns).
 
 ## Reference Files
 
@@ -127,4 +127,4 @@ Store design references, mockups, exported tokens, or style guides in the `refer
 
 ## Schema Validation
 
-Tutti i file `constitution/profile.json` sono validati contro `profile-schema.json` (JSON Schema Draft 2020-12). Le BR skills validano al caricamento e segnalano gli errori prima di procedere.
+Tutti i file `constitution/profile.json` sono validati contro `profile-schema.json` (JSON Schema Draft 2020-12). Le SDLC skills validano al caricamento e segnalano gli errori prima di procedere.
