@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/deloitte/deloitte-profiles/const-schema.json",
+  "title": "Deloitte Project Constitution — Archetypal Principles",
+  "description": "Schema for CONST.json. Contains principles, quality standards, code style, git workflow, and architectural patterns. Read by all SDLC skills as inviolable constraints on every generated output.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "inviolable_principles": {
+      "type": "object",
+      "description": "Non-negotiable rules every output must respect",
+      "additionalProperties": true,
+      "properties": {
+        "security": { "$ref": "#/$defs/principle" },
+        "accessibility": { "$ref": "#/$defs/principle" },
+        "responsiveness": { "$ref": "#/$defs/principle" },
+        "data_privacy": { "$ref": "#/$defs/principle" }
+      }
+    },
+    "quality_standards": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "test_coverage": {
+          "type": "object",
+          "properties": {
+            "minimum_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "applies_to": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "error_handling": { "type": "string" },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "format": { "type": "string" },
+            "never_log": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "performance": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "code_style": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "max_function_lines": { "type": "integer", "minimum": 1 },
+        "max_file_lines": { "type": "integer", "minimum": 1 },
+        "max_nesting_depth": { "type": "integer", "minimum": 1 },
+        "no_magic_numbers": { "type": "boolean" },
+        "no_debug_statements_in_prod": { "type": "boolean" }
+      }
+    },
+    "git_workflow": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "branch_pattern": { "type": "string" },
+        "commit_convention": { "type": "string" }
+      }
+    },
+    "architectural_patterns": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "layered_separation": { "type": "string" },
+        "api_response_envelope": { "type": "string" },
+        "test_pattern": { "type": "string" },
+        "input_validation": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "principle": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "rule": { "type": "string" },
+        "scope": { "type": "string" },
+        "verification": { "type": "string" },
+        "requirements": { "type": "array", "items": { "type": "string" } },
+        "breakpoints": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["rule"]
+    }
+  }
+}

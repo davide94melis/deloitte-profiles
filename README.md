@@ -1,6 +1,6 @@
 # Deloitte Profiles
 
-Repository centralizzato dei profili progetto e degli artefatti dei Business Requirement (BR) per l'ecosistema SDLC Skills. Ogni progetto mantiene un `constitution/profile.json` che cattura il suo tech stack, le convenzioni, il design system, la conoscenza di dominio e gli agenti custom. Le SDLC skills (`sdlc-analyzer`, `sdlc-executor`, `sdlc-reviewer`, `sdlc-updater`, `sdlc-debug`, `sdlc-estimator`, `sdlc-clarify`, `sdlc-progress-report`) leggono questi profili per generare output contestualizzato senza configurazione manuale ripetuta.
+Repository centralizzato dei profili progetto e degli artefatti dei Business Requirement (BR) per l'ecosistema SDLC Skills. Ogni progetto mantiene una coppia di file in `constitution/` — `CONST.json` (principi e standard di archetipo) e `PROFILE.json` (dettagli specifici del progetto: tech stack, convenzioni, design system, dominio, agenti custom). Le SDLC skills (`sdlc-analyzer`, `sdlc-executor`, `sdlc-reviewer`, `sdlc-updater`, `sdlc-debug`, `sdlc-estimator`, `sdlc-clarify`, `sdlc-progress-report`) leggono questi profili per generare output contestualizzato senza configurazione manuale ripetuta.
 
 Tutti gli artefatti BR (piani di implementazione, report di gap, progressi, stime, bug report, screenshot) sono centralizzati qui, non piu' nelle repo del codice. Le repo applicative restano focalizzate sul solo codice sorgente.
 
@@ -12,7 +12,8 @@ deloitte-profiles/
 ├── README.md
 ├── <nome-progetto>/
 │   ├── constitution/
-│   │   └── profile.json         # configurazione progetto (tech stack, dominio, design system)
+│   │   ├── CONST.json           # principi/standard di archetipo (OWASP, WCAG, test coverage, ecc.)
+│   │   └── PROFILE.json         # dettagli specifici progetto (tech stack, dominio, design system)
 │   ├── agents/                  # agenti custom .md per questo progetto (opzionale)
 │   ├── references/              # mockup, screenshot, style guide, codice gold-standard
 │   └── plans/                   # ciclo di vita dei Business Requirement
@@ -48,16 +49,38 @@ Un BR si muove tra le cartelle `plans/` in base al suo stato:
 
 Lo spostamento tra cartelle e' gestito dalle skill (`sdlc-analyzer` crea in `todo/`, `sdlc-executor` sposta in `in-progress/` alla prima esecuzione, la chiusura del BR sposta in `done/`).
 
-## Profile Sections
+## Constitution Files
+
+Ogni progetto ha due file nella sua folder `constitution/`:
+
+### `CONST.json` — principi e standard di archetipo
+
+Contiene le regole non-negoziabili e gli standard di qualità ripetibili tra progetti simili. Mai modificato in automatico dalle skill — è policy stabile gestita dall'utente.
 
 | Section | Content | Required |
-|---------|---------|----------|
+|---|---|---|
+| `inviolable_principles` | Security (OWASP), accessibility (WCAG), responsiveness, data privacy (GDPR) | Almeno uno |
+| `quality_standards` | Test coverage minima, error handling, logging, performance budget | No |
+| `code_style` | Max function/file lines, nesting depth, no magic numbers | No |
+| `git_workflow` | Branch pattern, commit convention | No |
+| `architectural_patterns` | Layered separation, API response envelope, AAA test pattern, input validation | No |
+
+Validato contro `const-schema.json`. Template di default in `claude-flow/skills/sdlc-profile-setup/_const-template.json`.
+
+### `PROFILE.json` — dettagli specifici del progetto
+
+Contiene tutto ciò che è unico del progetto. Auto-aggiornato da `sdlc-analyzer` quando rileva nuove convenzioni dal codice.
+
+| Section | Content | Required |
+|---|---|---|
 | `project` | Name, client, description | Yes |
-| `tech_stack` | Backend and frontend: language, framework, database, ORM, build tool | Yes |
-| `conventions` | Package structure, architectural layers, base entity, API prefix, test framework, naming, branch/commit conventions | No |
+| `tech_stack` | Backend, frontend, repositories (multi-repo con sigle), infrastructure, integrations | Yes |
+| `conventions` | Package structure, layers, base entity, API prefix, test framework, branch/commit specifici, naming | No |
 | `design_system` | Palette, typography, spacing, components, reference files | No |
 | `domain` | Glossary, business rules, entity state machines | No |
-| `custom_agents` | Paths to custom agent `.md` files for project-specific AI behaviors | No |
+| `custom_agents` | Paths to custom agent `.md` files | No |
+
+Validato contro `profile-schema.json`.
 
 ## Usage
 
@@ -69,7 +92,7 @@ Use the `sdlc-profile-setup` skill to scaffold a new project profile interactive
 /sdlc-profile-setup
 ```
 
-Esegue auto-detect sul codebase, fa domande guidate su dominio e design system, e scrive `constitution/profile.json` insieme alla struttura di cartelle (`agents/`, `references/`, `plans/{todo,in-progress,done}/`) nel progetto.
+Esegue auto-detect sul codebase, fa domande guidate su dominio e design system, e scrive `constitution/CONST.json` e `constitution/PROFILE.json` insieme alla struttura di cartelle (`agents/`, `references/`, `plans/{todo,in-progress,done}/`) nel progetto.
 
 ### Local Configuration
 
@@ -85,7 +108,11 @@ Ogni repository di progetto contiene un file `.br-local.json` che punta al suo p
 - `profilo` -- nome della directory di progetto in questo repo
 - `profiles_repo` -- path assoluto a questo repository sulla macchina dello sviluppatore
 
-Le SDLC skills risolvono il profilo come `<profiles_repo>/<profilo>/constitution/profile.json` e cercano gli artefatti BR sotto `<profiles_repo>/<profilo>/plans/`.
+Le SDLC skills risolvono **entrambi** i file:
+- `<profiles_repo>/<profilo>/constitution/CONST.json`
+- `<profiles_repo>/<profilo>/constitution/PROFILE.json`
+
+Entrambi devono esistere per il funzionamento. Se manca uno dei due, le skill segnalano errore e suggeriscono `python claude-flow/scripts/migrate-profile-split.py --apply` (per profili in formato legacy) oppure `/sdlc-profile-setup` (per nuovi progetti). Gli artefatti BR vengono cercati sotto `<profiles_repo>/<profilo>/plans/`.
 
 ### Auto-Sync
 
@@ -93,7 +120,9 @@ Le SDLC skills eseguono `git pull` sui profili prima di leggere. Non e' necessar
 
 ### Auto-Maintenance
 
-`sdlc-analyzer` aggiorna il profilo automaticamente quando rileva nuove convenzioni, dipendenze o termini di dominio durante la gap analysis. Le modifiche vengono committate in questo repo.
+`sdlc-analyzer` aggiorna automaticamente **solo `PROFILE.json`** quando rileva nuove convenzioni, dipendenze o termini di dominio durante la gap analysis. `CONST.json` è policy stabile e va modificato manualmente dall'utente.
+
+Le modifiche a PROFILE.json vengono committate in questo repo. Quando una skill rileva che il codice viola un principio CONST, lo segnala come finding nel `PLAN.md` sotto la sezione "Violazioni principi CONST rilevate", NON modifica CONST.json.
 
 ## Custom Agents
 
@@ -127,4 +156,8 @@ Store design references, mockups, exported tokens, or style guides in the `refer
 
 ## Schema Validation
 
-Tutti i file `constitution/profile.json` sono validati contro `profile-schema.json` (JSON Schema Draft 2020-12). Le SDLC skills validano al caricamento e segnalano gli errori prima di procedere.
+I file di costituzione sono validati contro JSON Schema Draft 2020-12:
+- `CONST.json` → `const-schema.json`
+- `PROFILE.json` → `profile-schema.json`
+
+Le SDLC skills validano al caricamento e segnalano gli errori con il path del campo invalido prima di procedere.

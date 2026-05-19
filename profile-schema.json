@@ -91,7 +91,7 @@
     },
     "conventions": {
       "type": "object",
-      "description": "Project coding conventions and structural patterns",
+      "description": "Project coding conventions and structural patterns. NOTE: inviolable_principles is no longer read from here — moved to CONST.json (see const-schema.json).",
       "additionalProperties": true,
       "properties": {
         "package_structure": {
