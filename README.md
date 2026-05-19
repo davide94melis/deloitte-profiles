@@ -27,9 +27,9 @@ deloitte-profiles/
 │       ├── in-progress/         # BR in lavorazione
 │       │   └── <data>_<nome-br>/
 │       │       ├── (tutti i file da todo +)
-│       │       ├── PROGRESSO_BR.md
+│       │       ├── PROGRESS.md
 │       │       ├── BUG_REPORT_BR.md
-│       │       ├── AVANZAMENTO_BR.xlsx
+│       │       ├── PROGRESS.xlsx
 │       │       └── screenshots/
 │       └── done/                # BR completati (archivio storico)
 │           └── <data>_<nome-br>/
@@ -43,7 +43,7 @@ Ogni progetto ha la propria directory. Il nome della directory e' tipicamente lo
 Un BR si muove tra le cartelle `plans/` in base al suo stato:
 
 1. **`todo/`** -- BR appena ricevuto. Contiene la documentazione funzionale convertita in markdown sotto `requirements/`, l'eventuale review qualita' (`CLARIFY.md/.docx`), il gap report (`PLAN.md`), il piano di implementazione (`TASKS.md`) e la stima (`STIMA_BR.md` / `.xlsx`).
-2. **`in-progress/`** -- BR in lavorazione. Contiene tutti i file di `todo/` piu' il file di progresso (`PROGRESSO_BR.md`), gli eventuali bug raccolti (`BUG_REPORT_BR.md`), l'Excel di avanzamento (`AVANZAMENTO_BR.xlsx`) e gli screenshot prodotti durante il debug.
+2. **`in-progress/`** -- BR in lavorazione. Contiene tutti i file di `todo/` piu' il file di progresso (`PROGRESS.md`), gli eventuali bug raccolti (`BUG_REPORT_BR.md`), l'Excel di avanzamento (`PROGRESS.xlsx`) e gli screenshot prodotti durante il debug.
 3. **`done/`** -- BR completati e validati. Archivio storico utile per consultazione e riuso di pattern.
 
 Lo spostamento tra cartelle e' gestito dalle skill (`sdlc-analyzer` crea in `todo/`, `sdlc-executor` sposta in `in-progress/` alla prima esecuzione, la chiusura del BR sposta in `done/`).
