@@ -76,7 +76,11 @@
         "database": "MySQL (Aurora RDS AWS)",
         "orm": "Hibernate/JPA",
         "mapping": "MapStruct 1.6.3",
-        "additional_libs": ["Apache Tika 3.2.3", "Apache POI 5.5", "AWS S3 SDK"],
+        "additional_libs": [
+          "Apache Tika 3.2.3",
+          "Apache POI 5.5",
+          "AWS S3 SDK"
+        ],
         "api_prefix": "/api/public/document"
       },
       {
@@ -144,11 +148,6 @@
       "test_framework": "Karma + Jasmine",
       "test_naming": "describe + it('should ...')",
       "i18n": "@ngx-translate (assets/i18n/)"
-    },
-    "inviolable_principles": {
-      "security": "Tutto il codice deve rispettare gli standard OWASP Top 10. Nessuna eccezione. Ogni endpoint, input utente, query e gestione dati sensibili deve essere verificata contro le 10 categorie OWASP prima del merge.",
-      "accessibility": "Tutto il codice frontend deve rispettare i requisiti di accessibilita' (WCAG). Ogni componente UI deve essere navigabile da tastiera, compatibile con screen reader, con contrasto adeguato e attributi ARIA corretti.",
-      "responsiveness": "Tutto il codice frontend deve essere responsive. Ogni vista e componente deve funzionare correttamente su mobile, tablet e desktop senza layout rotti o contenuti troncati."
     }
   },
   "design_system": {
@@ -223,21 +222,98 @@
       "Booking con deduplicazione lender per evitare duplicati"
     ],
     "entity_states": {
-      "Practice_PSM": ["PROGRESS_USER", "PROGRESS_DELOITTE", "REJECTION", "SUCCESS", "PRACTICE_FREEZED"],
-      "PracticeRequest": ["PENDING", "VALIDATED", "REJECTED"],
-      "PracticeOutcome": ["OK", "KO", "IN_PROGRESS"],
-      "Booking": ["INSERTED_BOOKING", "CANCELLED"],
-      "Contract": ["TO_SIGN", "SIGNED"],
-      "Billing": ["BILL_NOT_WORKABLE", "RECEIPT_LOADED", "RECEIPT_VALIDATED", "TO_PAY", "TO_BE_ISSUED", "IN_REVIEW", "PAID"],
-      "Record": ["WAITING_RESERVATION", "INSUFFICIENT_FUNDS", "FAILED_PRACTICE_LOADING", "PRACTICE_LOADED", "DECLINED_DEPOSIT_DATA", "RECHARGED_DEPOSIT_DATA", "WAITING_FOR_LOADING", "FAILED_DOCUMENTS_LOADING", "DOCUMENTS_LOADED", "WAITING_CANCELLATION", "CANCEL_CONFIRMED", "CANCELLED"],
-      "Assignment": ["ASSIGNED", "NOT_ASSIGNED"],
-      "PromotionalVoucher": ["GENERATED", "REGISTERED", "PRACTICE_STARTED", "PRACTICE_ASSIGNED", "VOUCHER_ASSIGNED", "EXPIRED", "VOUCHER_NOT_USED", "DISABLED"],
-      "GeneratedReport": ["TO_BE_VALIDATED", "VALIDATED", "REJECTED"],
-      "PostClosingDocument": ["WAITING", "CLASSIFIED", "DELETED"],
-      "SectionState": ["SECTION_INCOMPLETE", "SECTION_COMPLETE", "SECTION_COMPLETE_AI_EXTRACTION_IN_PROGRESS", "SECTION_COMPLETE_AI_TO_VERIFY_EXTRACTION", "SECTION_COMPLETE_AI_TO_VALIDATE_REPORT", "SECTION_REPORT_GENERATED"],
-      "AssurancePerfection": ["ASSURANCE_DOC", "PERFECTION", "TRANSCRIPTION_NOTE", "POLICY"]
+      "Practice_PSM": [
+        "PROGRESS_USER",
+        "PROGRESS_DELOITTE",
+        "REJECTION",
+        "SUCCESS",
+        "PRACTICE_FREEZED"
+      ],
+      "PracticeRequest": [
+        "PENDING",
+        "VALIDATED",
+        "REJECTED"
+      ],
+      "PracticeOutcome": [
+        "OK",
+        "KO",
+        "IN_PROGRESS"
+      ],
+      "Booking": [
+        "INSERTED_BOOKING",
+        "CANCELLED"
+      ],
+      "Contract": [
+        "TO_SIGN",
+        "SIGNED"
+      ],
+      "Billing": [
+        "BILL_NOT_WORKABLE",
+        "RECEIPT_LOADED",
+        "RECEIPT_VALIDATED",
+        "TO_PAY",
+        "TO_BE_ISSUED",
+        "IN_REVIEW",
+        "PAID"
+      ],
+      "Record": [
+        "WAITING_RESERVATION",
+        "INSUFFICIENT_FUNDS",
+        "FAILED_PRACTICE_LOADING",
+        "PRACTICE_LOADED",
+        "DECLINED_DEPOSIT_DATA",
+        "RECHARGED_DEPOSIT_DATA",
+        "WAITING_FOR_LOADING",
+        "FAILED_DOCUMENTS_LOADING",
+        "DOCUMENTS_LOADED",
+        "WAITING_CANCELLATION",
+        "CANCEL_CONFIRMED",
+        "CANCELLED"
+      ],
+      "Assignment": [
+        "ASSIGNED",
+        "NOT_ASSIGNED"
+      ],
+      "PromotionalVoucher": [
+        "GENERATED",
+        "REGISTERED",
+        "PRACTICE_STARTED",
+        "PRACTICE_ASSIGNED",
+        "VOUCHER_ASSIGNED",
+        "EXPIRED",
+        "VOUCHER_NOT_USED",
+        "DISABLED"
+      ],
+      "GeneratedReport": [
+        "TO_BE_VALIDATED",
+        "VALIDATED",
+        "REJECTED"
+      ],
+      "PostClosingDocument": [
+        "WAITING",
+        "CLASSIFIED",
+        "DELETED"
+      ],
+      "SectionState": [
+        "SECTION_INCOMPLETE",
+        "SECTION_COMPLETE",
+        "SECTION_COMPLETE_AI_EXTRACTION_IN_PROGRESS",
+        "SECTION_COMPLETE_AI_TO_VERIFY_EXTRACTION",
+        "SECTION_COMPLETE_AI_TO_VALIDATE_REPORT",
+        "SECTION_REPORT_GENERATED"
+      ],
+      "AssurancePerfection": [
+        "ASSURANCE_DOC",
+        "PERFECTION",
+        "TRANSCRIPTION_NOTE",
+        "POLICY"
+      ]
     },
-    "practice_types": ["Banca Agente", "SACE", "Monitoraggio (in arrivo da feature/monitoring)"],
+    "practice_types": [
+      "Banca Agente",
+      "SACE",
+      "Monitoraggio (in arrivo da feature/monitoring)"
+    ],
     "base_platform": "EsGO — piattaforma ESG/compliance da cui Banca Agente e' stata derivata. Moduli legacy ancora presenti nel frontend (autogreen, marketplace, esgo) ma non attivi per il cliente ISP"
   }
 }
