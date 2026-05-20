@@ -1,7 +1,7 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-20 12:30` (T-021 chiusa con recovery Davide: fix link "Vedi tutte" nella dashboard)
+Ultimo aggiornamento: `2026-05-20 13:00` (T-018 avviata da Davide: branch creato, esplorazione pattern completata, decisioni architetturali confermate)
 
 ## Riepilogo
 
@@ -9,8 +9,8 @@ Ultimo aggiornamento: `2026-05-20 12:30` (T-021 chiusa con recovery Davide: fix 
 |---|---|
 | Task totali | 31 |
 | Completate | 27 |
-| In corso | 1 |
-| Da iniziare | 3 |
+| In corso | 2 |
+| Da iniziare | 2 |
 | Bloccate | 0 |
 | Progresso complessivo | 96% |
 
@@ -35,7 +35,7 @@ Ultimo aggiornamento: `2026-05-20 12:30` (T-021 chiusa con recovery Davide: fix 
 | T-015 | Spread BE — service + controller (2 tabelle distinte) | Ahmad | 100% | Completata | feature/monitoring-spread-be | SpreadService (7 methods), SpreadController (7 endpoints), 14 unit test. |
 | T-016 | Spread FE — 2 tabelle distinte (ISP + Deloitte) | Georgios | 100% | Completata | feature/monitoring-spread-fe | SpreadTabComponent: 2 tabelle, inline edit, CRUD, validazione, role-gating, 20 unit test. |
 | T-017 | Flusso Deloitte — conferma/rifiuta + assegnazione CC manuale | Alexios (+ Davide test recovery) | 100% | Completata | feature/monitoring-deloitte-flow | 2026-05-20 (Davide): aggiunti cc-assignment.component.spec.ts (40 test su wizard 4-step, form validation, cascade assignEventValue→confirmDocument, edge case) e document-history.component.spec.ts (24 test su load via service, role-gating isConsultant, confirmDocument/rejectDocument, reject dialog con motivazione). Pattern NO_ERRORS_SCHEMA + MockCustomTranslatePipe. Totale 64/64 verdi. Wizard 4 step (vs 6 spec) → da validare con funzionale, non bloccante. Commit 53885b4. |
-| T-018 | Flusso Deloitte — GenAI + modifica dati covenant | Davide | 0% | Da iniziare | — | Bloccata da T-017 |
+| T-018 | Flusso Deloitte — GenAI + modifica dati covenant | Davide | 5% | In corso | feature/monitoring-deloitte-genai | 2026-05-20: branch creato BE+FE da feature/monitoring-deloitte-flow (T-017). Esplorazione pattern AI completata. Decisioni architetturali: (a) riuso AGENCYDESK_POST_CLOSING + nuovo documentType COMPLIANCE_CERTIFICATE_MONITORING, (b) nuova entity MonitoringGenAiExtraction per persistenza risultato, (c) scope BE+FE completi. Sotto-step 1 (BE foundation) e 5 (FE service+model+i18n) in dispatch parallelo. |
 | T-019 | Eccezioni ISP + gestione Deloitte | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-exceptions | 2026-05-20 (Davide): merge feature/monitoring in branch (risolti conflitti su MonitoringEventService.java import LocalDateTime/ChronoUnit, MonitoringEventServiceTest.java unione 44 test). FE wiring: import MonitoringExceptionDialogModule in practice-detail.module, wire `<app-monitoring-exception-dialog>` con @ViewChild, action column buildActionCell role-gated (ISP: Salta/Ignora/Visualizza; Deloitte: Annulla), monitoring.service.requestException → FormData multipart, getExceptionDocument GET Blob. Fix test preesistenti exception-dialog.spec.ts (ButtonModule + CUSTOM_ELEMENTS_SCHEMA + stub post-detectChanges). Risultato: 27 test exception-dialog + 32 test practice-detail + 5 test monitoring.service = 64/64 verdi. BE: build SUCCESS, test MonitoringEventServiceTest 44 verdi. Branch da pushare. |
 | T-020 | Upload COVNO/DB Obblighi + card dashboard | Alexios (+ Davide test recovery) | 100% | Completata | feature/monitoring-covno-upload | 2026-05-20 (Davide): aggiunti CovnoUploadServiceTest.java (20 test in 5 @Nested: ParseXlsx, MergePrecedence A-011 verificato, HistoryPersistence SUCCESS/PARTIAL/FAILED, GetHistory, EdgeCases) e CovnoControllerTest.java (5 test pure unit) — totale 25 BE verdi, BUILD SUCCESS. Aggiunto dashboard.component.spec.ts FE (14 test su upload card, ngOnInit reload, getResultSeverity mapping completo) — 14/14 verdi. Commit BE d5d7272, FE c24ffac. |
 | T-021 | Pagine complete Scaduti + In Scadenza | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-expired-expiring-pages | 2026-05-20 (Davide): audit cross-branch ha verificato 20/22 requisiti OK (2 pagine, 13 colonne, filtri colonna + range date, app-table server-paginated 20 righe, export Excel, route lazy, 62+62 unit test, i18n IT+EN). Gap: link "Vedi tutte" della dashboard puntavano a navigateToPractices() invece che alle nuove pagine. Recovery: merge T-010 (feature/monitoring-dashboard-fe) nel branch T-021, aggiunti navigateToExpiredEvents()/navigateToExpiringEvents() in dashboard.component.ts, patchati i 2 click handler in dashboard.component.html, aggiunti 2 unit test AAA in dashboard.component.spec.ts. Test totali verdi: 79 dashboard + 62 expired + 62 expiring = 203/203. Commit fix 9f5fdcc. |
