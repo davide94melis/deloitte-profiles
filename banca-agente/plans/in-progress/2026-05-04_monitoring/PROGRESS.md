@@ -1,7 +1,7 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-20 19:00` (T-MERGE-FINAL chiusa al 100% da Davide: 13 merge ordinati BE+FE, build SUCCESS, tutti i test critici verdi)
+Ultimo aggiornamento: `2026-05-20 19:30` (T-024 avviata da Davide: branch creato, Fase A tecnica iniziata - fix test residui)
 
 ## Riepilogo
 
@@ -9,10 +9,10 @@ Ultimo aggiornamento: `2026-05-20 19:00` (T-MERGE-FINAL chiusa al 100% da Davide
 |---|---|
 | Task totali | 31 |
 | Completate | 29 |
-| In corso | 1 |
-| Da iniziare | 1 |
+| In corso | 2 |
+| Da iniziare | 0 |
 | Bloccate | 0 |
-| Progresso complessivo | 100% (esclusa T-024) |
+| Progresso complessivo | 100% (T-024 tecnica in corso) |
 
 ## Stato Task
 
@@ -41,7 +41,7 @@ Ultimo aggiornamento: `2026-05-20 19:00` (T-MERGE-FINAL chiusa al 100% da Davide
 | T-021 | Pagine complete Scaduti + In Scadenza | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-expired-expiring-pages | 2026-05-20 (Davide): audit cross-branch ha verificato 20/22 requisiti OK (2 pagine, 13 colonne, filtri colonna + range date, app-table server-paginated 20 righe, export Excel, route lazy, 62+62 unit test, i18n IT+EN). Gap: link "Vedi tutte" della dashboard puntavano a navigateToPractices() invece che alle nuove pagine. Recovery: merge T-010 (feature/monitoring-dashboard-fe) nel branch T-021, aggiunti navigateToExpiredEvents()/navigateToExpiringEvents() in dashboard.component.ts, patchati i 2 click handler in dashboard.component.html, aggiunti 2 unit test AAA in dashboard.component.spec.ts. Test totali verdi: 79 dashboard + 62 expired + 62 expiring = 203/203. Commit fix 9f5fdcc. |
 | T-022 | Mailing List completo | Georgios | 100% | Completata | feature/monitoring-mailing-list | BE: MailingListService, Controller, AdForm entity+migration, 31 test. FE: main page+detail, i18n. Build OK. |
 | T-023 | Email templates + scheduled jobs | Davide | 100% | Completata | feature/monitoring-notifications-jobs | 7 enum email, MonitoringSchedulerService, 4 @Scheduled jobs, 7 template HTML (EM). Build OK. |
-| T-024 | Integration testing + UAT + polish | Davide | 0% | Da iniziare | — | Bloccata da T-MERGE-FINAL |
+| T-024 | Integration testing + UAT + polish | Davide | 10% | In corso | feature/monitoring-integration-uat | 2026-05-20: branch creato BE+FE da feature/monitoring. Scope splittato in 5 fasi: A (fix test residui FE: 5+3 xit + 2 fail), B (build+test totali BE+FE), C (cleanup PROGRESSO_BR residuo BE + verifica no debug), D (UAT funzionale E2E ISP+Deloitte — richiede funzionale), E (review finale Davide+Carmine). Fasi A-C oggi, D-E sessione successiva. |
 | T-MERGE-001-002 | Merge entità fondazioni in feature/monitoring | Alexios | 100% | Completata | feature/monitoring-dto-repository-view | Mergiati T-001 e T-002 nel branch T-003 |
 | T-MERGE-003 | Merge fondazioni BE | Alexios | 100% | Completata | feature/monitoring | git pull origin feature/monitoring-dto-repository-view in feature/monitoring. Build OK. |
 | T-MERGE-004 | Merge FE scaffold | Georgios | 100% | Completata | feature/monitoring | Fast-forward merge, build OK. Pushed 2026-05-06 |
