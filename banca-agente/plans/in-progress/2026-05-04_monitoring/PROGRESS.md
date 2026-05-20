@@ -1,7 +1,7 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-20 19:30` (T-024 avviata da Davide: branch creato, Fase A tecnica iniziata - fix test residui)
+Ultimo aggiornamento: `2026-05-21 09:00` (T-024 al 70%: Fasi A+B+C tecniche complete, 579/579 test FE monitoring PASS + 106/106 BE PASS. Restano D+E con funzionale ISP+Carmine)
 
 ## Riepilogo
 
@@ -12,7 +12,7 @@ Ultimo aggiornamento: `2026-05-20 19:30` (T-024 avviata da Davide: branch creato
 | In corso | 2 |
 | Da iniziare | 0 |
 | Bloccate | 0 |
-| Progresso complessivo | 100% (T-024 tecnica in corso) |
+| Progresso complessivo | 100% tecnico, 70% T-024 (resta UAT funzionale + review finale) |
 
 ## Stato Task
 
@@ -41,7 +41,7 @@ Ultimo aggiornamento: `2026-05-20 19:30` (T-024 avviata da Davide: branch creato
 | T-021 | Pagine complete Scaduti + In Scadenza | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-expired-expiring-pages | 2026-05-20 (Davide): audit cross-branch ha verificato 20/22 requisiti OK (2 pagine, 13 colonne, filtri colonna + range date, app-table server-paginated 20 righe, export Excel, route lazy, 62+62 unit test, i18n IT+EN). Gap: link "Vedi tutte" della dashboard puntavano a navigateToPractices() invece che alle nuove pagine. Recovery: merge T-010 (feature/monitoring-dashboard-fe) nel branch T-021, aggiunti navigateToExpiredEvents()/navigateToExpiringEvents() in dashboard.component.ts, patchati i 2 click handler in dashboard.component.html, aggiunti 2 unit test AAA in dashboard.component.spec.ts. Test totali verdi: 79 dashboard + 62 expired + 62 expiring = 203/203. Commit fix 9f5fdcc. |
 | T-022 | Mailing List completo | Georgios | 100% | Completata | feature/monitoring-mailing-list | BE: MailingListService, Controller, AdForm entity+migration, 31 test. FE: main page+detail, i18n. Build OK. |
 | T-023 | Email templates + scheduled jobs | Davide | 100% | Completata | feature/monitoring-notifications-jobs | 7 enum email, MonitoringSchedulerService, 4 @Scheduled jobs, 7 template HTML (EM). Build OK. |
-| T-024 | Integration testing + UAT + polish | Davide | 10% | In corso | feature/monitoring-integration-uat | 2026-05-20: branch creato BE+FE da feature/monitoring. Scope splittato in 5 fasi: A (fix test residui FE: 5+3 xit + 2 fail), B (build+test totali BE+FE), C (cleanup PROGRESSO_BR residuo BE + verifica no debug), D (UAT funzionale E2E ISP+Deloitte — richiede funzionale), E (review finale Davide+Carmine). Fasi A-C oggi, D-E sessione successiva. |
+| T-024 | Integration testing + UAT + polish | Davide | 70% | In corso | feature/monitoring-integration-uat | 2026-05-20+21: Fasi A+B+C tecniche complete. **Fase A** (fix test residui): practices.spec 2 FAIL → 47/47 PASS (riscritti 2 test allineati a FormGroup-driven filters vs deprecated LazyLoadEvent.filters + 2 bonus alignment), spread-tab.spec 3 xit aggiornati a "T-024 verified: feature removed, no replacement needed", mailing-list-detail.spec 45 FAIL + 6 xit → 50/50 PASS (fixato NullInjector HttpClient via HttpClientTestingModule + UserService mock + riscritti 5 xit per inline editing API addContactRow/startEditRow/saveContactRow). **Fase B** (build+test totali): BE mvn clean install SUCCESS + 106/106 monitoring test PASS; FE npx tsc CLEAN + suite monitoring 579/579 PASS dopo fix collaterali aggiuntivi su schedule-tab.spec (31 FAIL → 31 PASS via HttpClientTestingModule + AuthService mock + thead 9 col realign), covenant-detail.spec (5 FAIL → 23 PASS via thead 11 col realign + sign-only row mapping), mailing-list.spec (17 FAIL → 17 PASS via same TestBed pattern + 11/12 col headers). Pre Fase B: 526 PASS / 53 FAIL / 3 SKIP. Post Fase B: 579 PASS / 0 FAIL / 3 SKIP intentional. **Fase C** (cleanup): BE working tree pulito, no debug statements nei file T-018, plans/ in BE è strutturale non residuo. Commit `a1fefb9` (6 spec realign), branch BE+FE pushati. **Resta D+E** (sessione successiva con stakeholder): D=UAT funzionale E2E ISP+Deloitte (richiede utente reale ISP e mock data), E=code review finale Davide BE + Carmine FE. |
 | T-MERGE-001-002 | Merge entità fondazioni in feature/monitoring | Alexios | 100% | Completata | feature/monitoring-dto-repository-view | Mergiati T-001 e T-002 nel branch T-003 |
 | T-MERGE-003 | Merge fondazioni BE | Alexios | 100% | Completata | feature/monitoring | git pull origin feature/monitoring-dto-repository-view in feature/monitoring. Build OK. |
 | T-MERGE-004 | Merge FE scaffold | Georgios | 100% | Completata | feature/monitoring | Fast-forward merge, build OK. Pushed 2026-05-06 |
