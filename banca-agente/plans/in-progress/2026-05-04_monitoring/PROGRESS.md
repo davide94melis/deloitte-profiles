@@ -1,18 +1,18 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-20 11:00` (T-017 + T-020 chiusi da Davide)
+Ultimo aggiornamento: `2026-05-20 12:30` (T-021 chiusa con recovery Davide: fix link "Vedi tutte" nella dashboard)
 
 ## Riepilogo
 
 | Metrica | Valore |
 |---|---|
 | Task totali | 31 |
-| Completate | 26 |
+| Completate | 27 |
 | In corso | 1 |
-| Da iniziare | 4 |
+| Da iniziare | 3 |
 | Bloccate | 0 |
-| Progresso complessivo | 93% |
+| Progresso complessivo | 96% |
 
 ## Stato Task
 
@@ -38,7 +38,7 @@ Ultimo aggiornamento: `2026-05-20 11:00` (T-017 + T-020 chiusi da Davide)
 | T-018 | Flusso Deloitte — GenAI + modifica dati covenant | Davide | 0% | Da iniziare | — | Bloccata da T-017 |
 | T-019 | Eccezioni ISP + gestione Deloitte | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-exceptions | 2026-05-20 (Davide): merge feature/monitoring in branch (risolti conflitti su MonitoringEventService.java import LocalDateTime/ChronoUnit, MonitoringEventServiceTest.java unione 44 test). FE wiring: import MonitoringExceptionDialogModule in practice-detail.module, wire `<app-monitoring-exception-dialog>` con @ViewChild, action column buildActionCell role-gated (ISP: Salta/Ignora/Visualizza; Deloitte: Annulla), monitoring.service.requestException → FormData multipart, getExceptionDocument GET Blob. Fix test preesistenti exception-dialog.spec.ts (ButtonModule + CUSTOM_ELEMENTS_SCHEMA + stub post-detectChanges). Risultato: 27 test exception-dialog + 32 test practice-detail + 5 test monitoring.service = 64/64 verdi. BE: build SUCCESS, test MonitoringEventServiceTest 44 verdi. Branch da pushare. |
 | T-020 | Upload COVNO/DB Obblighi + card dashboard | Alexios (+ Davide test recovery) | 100% | Completata | feature/monitoring-covno-upload | 2026-05-20 (Davide): aggiunti CovnoUploadServiceTest.java (20 test in 5 @Nested: ParseXlsx, MergePrecedence A-011 verificato, HistoryPersistence SUCCESS/PARTIAL/FAILED, GetHistory, EdgeCases) e CovnoControllerTest.java (5 test pure unit) — totale 25 BE verdi, BUILD SUCCESS. Aggiunto dashboard.component.spec.ts FE (14 test su upload card, ngOnInit reload, getResultSeverity mapping completo) — 14/14 verdi. Commit BE d5d7272, FE c24ffac. |
-| T-021 | Pagine complete Scaduti + In Scadenza | Adham | 0% | Da iniziare | — | Bloccata da T-010 e T-MERGE-008 |
+| T-021 | Pagine complete Scaduti + In Scadenza | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-expired-expiring-pages | 2026-05-20 (Davide): audit cross-branch ha verificato 20/22 requisiti OK (2 pagine, 13 colonne, filtri colonna + range date, app-table server-paginated 20 righe, export Excel, route lazy, 62+62 unit test, i18n IT+EN). Gap: link "Vedi tutte" della dashboard puntavano a navigateToPractices() invece che alle nuove pagine. Recovery: merge T-010 (feature/monitoring-dashboard-fe) nel branch T-021, aggiunti navigateToExpiredEvents()/navigateToExpiringEvents() in dashboard.component.ts, patchati i 2 click handler in dashboard.component.html, aggiunti 2 unit test AAA in dashboard.component.spec.ts. Test totali verdi: 79 dashboard + 62 expired + 62 expiring = 203/203. Commit fix 9f5fdcc. |
 | T-022 | Mailing List completo | Georgios | 100% | Completata | feature/monitoring-mailing-list | BE: MailingListService, Controller, AdForm entity+migration, 31 test. FE: main page+detail, i18n. Build OK. |
 | T-023 | Email templates + scheduled jobs | Davide | 100% | Completata | feature/monitoring-notifications-jobs | 7 enum email, MonitoringSchedulerService, 4 @Scheduled jobs, 7 template HTML (EM). Build OK. |
 | T-024 | Integration testing + UAT + polish | Davide | 0% | Da iniziare | — | Bloccata da T-MERGE-FINAL |
@@ -47,7 +47,7 @@ Ultimo aggiornamento: `2026-05-20 11:00` (T-017 + T-020 chiusi da Davide)
 | T-MERGE-004 | Merge FE scaffold | Georgios | 100% | Completata | feature/monitoring | Fast-forward merge, build OK. Pushed 2026-05-06 |
 | T-MERGE-006 | Merge core BE parziale (macchina stati + pratiche) | Davide | 100% | Completata | feature/monitoring | Fast-forward merge T-006 + T-007 in feature/monitoring. Build OK. T-008 sbloccata. |
 | T-MERGE-008 | Merge core BE | Davide | 100% | Completata | feature/monitoring | Fast-forward merge T-008 in feature/monitoring. Build SUCCESS. |
-| T-MERGE-FINAL | Merge finale pre-integrazione | Davide | 0% | Da iniziare | — | Bloccata da T-017..T-023. Sblocca T-024. |
+| T-MERGE-FINAL | Merge finale pre-integrazione | Davide | 0% | Da iniziare | — | Bloccata solo da T-018 (Davide). T-017, T-019, T-020, T-021, T-022, T-023 tutte al 100%. Sblocca T-024. |
 | T-MERGE-W2 | Merge checkpoint Wave 2 | Davide | 100% | Completata | feature/monitoring | Mergiati 3 branch BE + 5 branch FE. Conflitti i18n e practice-detail risolti. Build BE+FE: SUCCESS. |
 ## Log Attività
 
@@ -99,3 +99,5 @@ Ultimo aggiornamento: `2026-05-20 11:00` (T-017 + T-020 chiusi da Davide)
 - **T-017 chiusa al 100% (Davide test recovery)**: aggiunto cc-assignment.component.spec.ts (40 test) + document-history.component.spec.ts (24 test). Tutti i wizard step coperti, role-gating, edge case. 64/64 verdi. Commit FE 53885b4. Wizard 4 step vs 6 spec resta come decisione UX da validare con funzionale (non bloccante).
 - **T-020 chiusa al 100% (Davide test recovery)**: BE — CovnoUploadServiceTest.java 20 test in 5 @Nested incluso verifica esplicita A-011 (AUTO sovrascritto, COVNO aggiornato, MANUAL_DELOITTE intatto) + CovnoControllerTest.java 5 test (BUILD SUCCESS, 25 tests). FE — dashboard.component.spec.ts 14 test (14/14 verdi). Commit BE d5d7272, FE c24ffac.
 - **T-MERGE-FINAL ora effettivamente sbloccato**: tutte le task Wave 3+4 (T-017..T-023) sono al 100%. Davide può procedere con merge di tutti i branch in feature/monitoring.
+- **T-021 chiusa al 100% (Davide recovery)**: audit cross-branch su `feature/monitoring-expired-expiring-pages` ha confermato che Adham ha implementato 20/22 requisiti del piano (2 pagine expired/expiring con 13 colonne identiche al `MonitoringDashboardEventModel`, filtri colonna + range date `p-calendar`, `app-table` server-paginated 20 righe, export Excel via blob + `Report_*.xlsx`, route lazy in `monitoring-routing.module.ts`, 62+62 unit test, i18n IT+EN). Gap bloccante: i link "Vedi tutte" nella dashboard puntavano a `navigateToPractices()` invece che alle nuove pagine. Recovery: (1) merge `feature/monitoring-dashboard-fe` (T-010) nel branch T-021 — merge auto strategy "ort" senza conflitti, commit `6805222`. (2) Aggiunti `navigateToExpiredEvents()` e `navigateToExpiringEvents()` in `dashboard.component.ts` simmetrici a `navigateToPractices()` (`['../expired-events']` / `['../expiring-events']` relativeTo route). (3) Patchati 2 click handler in `dashboard.component.html` (terzo link "Vedi tutte" su Pratiche Recenti lasciato su `navigateToPractices()`, corretto). (4) Aggiunti 2 unit test AAA in `dashboard.component.spec.ts`. Verifiche: Fase A — 79 test dashboard (77+2) + 62 expired + 62 expiring = 203/203 verdi. Fase B — i 3 requisiti #17, #18, #15+#16 (route già esistenti) verificati con file:linea. Fase C — codice nei limiti CONST (max 50 righe/funzione, no magic numbers, AAA). Commit fix `9f5fdcc`, branch pushato.
+- **Conseguenza**: T-MERGE-FINAL ora bloccato solo da T-018 (mia). Posso partire con T-018 (Flusso Deloitte — GenAI + modifica covenant).
