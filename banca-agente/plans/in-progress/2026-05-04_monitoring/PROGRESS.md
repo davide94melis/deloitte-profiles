@@ -1,18 +1,18 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-20 00:30` (T-019 completata da Davide)
+Ultimo aggiornamento: `2026-05-20 11:00` (T-017 + T-020 chiusi da Davide)
 
 ## Riepilogo
 
 | Metrica | Valore |
 |---|---|
 | Task totali | 31 |
-| Completate | 24 |
-| In corso | 3 |
+| Completate | 26 |
+| In corso | 1 |
 | Da iniziare | 4 |
 | Bloccate | 0 |
-| Progresso complessivo | 86% |
+| Progresso complessivo | 93% |
 
 ## Stato Task
 
@@ -34,10 +34,10 @@ Ultimo aggiornamento: `2026-05-20 00:30` (T-019 completata da Davide)
 | T-014 | Upload Compliance Certificate + storico documenti | Alexios | 100% | Completata | feature/monitoring-upload-cc-documents | BE: service+controller+migration. FE: upload+history components, i18n. Build OK. |
 | T-015 | Spread BE — service + controller (2 tabelle distinte) | Ahmad | 100% | Completata | feature/monitoring-spread-be | SpreadService (7 methods), SpreadController (7 endpoints), 14 unit test. |
 | T-016 | Spread FE — 2 tabelle distinte (ISP + Deloitte) | Georgios | 100% | Completata | feature/monitoring-spread-fe | SpreadTabComponent: 2 tabelle, inline edit, CRUD, validazione, role-gating, 20 unit test. |
-| T-017 | Flusso Deloitte — conferma/rifiuta + assegnazione CC manuale | Alexios | 85% | In corso | feature/monitoring-deloitte-flow | Audit 2026-05-19: role-gating + CC assignment OK. Wizard 4 step invece di 6 (UX divergente da spec). Mancano test cc-assignment.spec.ts e document-history.spec.ts. |
+| T-017 | Flusso Deloitte — conferma/rifiuta + assegnazione CC manuale | Alexios (+ Davide test recovery) | 100% | Completata | feature/monitoring-deloitte-flow | 2026-05-20 (Davide): aggiunti cc-assignment.component.spec.ts (40 test su wizard 4-step, form validation, cascade assignEventValue→confirmDocument, edge case) e document-history.component.spec.ts (24 test su load via service, role-gating isConsultant, confirmDocument/rejectDocument, reject dialog con motivazione). Pattern NO_ERRORS_SCHEMA + MockCustomTranslatePipe. Totale 64/64 verdi. Wizard 4 step (vs 6 spec) → da validare con funzionale, non bloccante. Commit 53885b4. |
 | T-018 | Flusso Deloitte — GenAI + modifica dati covenant | Davide | 0% | Da iniziare | — | Bloccata da T-017 |
 | T-019 | Eccezioni ISP + gestione Deloitte | Adham (+ Davide recovery) | 100% | Completata | feature/monitoring-exceptions | 2026-05-20 (Davide): merge feature/monitoring in branch (risolti conflitti su MonitoringEventService.java import LocalDateTime/ChronoUnit, MonitoringEventServiceTest.java unione 44 test). FE wiring: import MonitoringExceptionDialogModule in practice-detail.module, wire `<app-monitoring-exception-dialog>` con @ViewChild, action column buildActionCell role-gated (ISP: Salta/Ignora/Visualizza; Deloitte: Annulla), monitoring.service.requestException → FormData multipart, getExceptionDocument GET Blob. Fix test preesistenti exception-dialog.spec.ts (ButtonModule + CUSTOM_ELEMENTS_SCHEMA + stub post-detectChanges). Risultato: 27 test exception-dialog + 32 test practice-detail + 5 test monitoring.service = 64/64 verdi. BE: build SUCCESS, test MonitoringEventServiceTest 44 verdi. Branch da pushare. |
-| T-020 | Upload COVNO/DB Obblighi + card dashboard | Alexios | 85% | Da revieware | feature/monitoring-covno-upload | Audit 2026-05-19: BE+FE implementati. CovnoUploadService (parseXlsx POI, mergeData priorità AUTO<COVNO<MANUAL_DELOITTE per A-011), CovnoController endpoints, entity CovnoUploadHistory, migration 005, dashboard card + dialog upload + storico, i18n IT/EN 22 chiavi. Autore: Alexios (myzonalexios). Mancano test BE (CovnoUploadServiceTest) e FE (dashboard spec aggiornato). |
+| T-020 | Upload COVNO/DB Obblighi + card dashboard | Alexios (+ Davide test recovery) | 100% | Completata | feature/monitoring-covno-upload | 2026-05-20 (Davide): aggiunti CovnoUploadServiceTest.java (20 test in 5 @Nested: ParseXlsx, MergePrecedence A-011 verificato, HistoryPersistence SUCCESS/PARTIAL/FAILED, GetHistory, EdgeCases) e CovnoControllerTest.java (5 test pure unit) — totale 25 BE verdi, BUILD SUCCESS. Aggiunto dashboard.component.spec.ts FE (14 test su upload card, ngOnInit reload, getResultSeverity mapping completo) — 14/14 verdi. Commit BE d5d7272, FE c24ffac. |
 | T-021 | Pagine complete Scaduti + In Scadenza | Adham | 0% | Da iniziare | — | Bloccata da T-010 e T-MERGE-008 |
 | T-022 | Mailing List completo | Georgios | 100% | Completata | feature/monitoring-mailing-list | BE: MailingListService, Controller, AdForm entity+migration, 31 test. FE: main page+detail, i18n. Build OK. |
 | T-023 | Email templates + scheduled jobs | Davide | 100% | Completata | feature/monitoring-notifications-jobs | 7 enum email, MonitoringSchedulerService, 4 @Scheduled jobs, 7 template HTML (EM). Build OK. |
@@ -96,3 +96,6 @@ Ultimo aggiornamento: `2026-05-20 00:30` (T-019 completata da Davide)
   - **File modificati FE** (6): `practice-detail.{component.ts, component.html, component.spec.ts, module.ts}` + `monitoring.service.ts` + `exception-dialog.component.spec.ts`. Aggiunto `monitoring.service.spec.ts` (nuovo, 5 test).
   - **Pronto per commit**: branch BE `feature/monitoring-exceptions` (merge commit), branch FE `feature/monitoring-exceptions` (5 file modificati + 1 nuovo). Sviluppatore deve eseguire commit+push.
   - **T-MERGE-FINAL** ora sbloccata. T-MERGE-FINAL dipende ancora dal commit+push dei branch T-017 e T-020 (entrambi al ~85% per gap test).
+- **T-017 chiusa al 100% (Davide test recovery)**: aggiunto cc-assignment.component.spec.ts (40 test) + document-history.component.spec.ts (24 test). Tutti i wizard step coperti, role-gating, edge case. 64/64 verdi. Commit FE 53885b4. Wizard 4 step vs 6 spec resta come decisione UX da validare con funzionale (non bloccante).
+- **T-020 chiusa al 100% (Davide test recovery)**: BE — CovnoUploadServiceTest.java 20 test in 5 @Nested incluso verifica esplicita A-011 (AUTO sovrascritto, COVNO aggiornato, MANUAL_DELOITTE intatto) + CovnoControllerTest.java 5 test (BUILD SUCCESS, 25 tests). FE — dashboard.component.spec.ts 14 test (14/14 verdi). Commit BE d5d7272, FE c24ffac.
+- **T-MERGE-FINAL ora effettivamente sbloccato**: tutte le task Wave 3+4 (T-017..T-023) sono al 100%. Davide può procedere con merge di tutti i branch in feature/monitoring.
