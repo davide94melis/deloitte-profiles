@@ -4,6 +4,20 @@ Repository centralizzato dei profili progetto e degli artefatti dei Business Req
 
 Tutti gli artefatti BR (piani di implementazione, report di gap, progressi, stime, bug report, screenshot) sono centralizzati qui, non piu' nelle repo del codice. Le repo applicative restano focalizzate sul solo codice sorgente.
 
+## Modalita' Operative (da maggio 2026)
+
+Le skill SDLC supportano **due modalita'** mutuamente esclusive per progetto, discriminate via auto-detect dal file `.br-local.json` presente nella repo applicativa:
+
+| Modalita' | Trigger `.br-local.json` | Storage profilo + plan | Stati plan |
+|---|---|---|---|
+| **Legacy** (questa repo) | `{"profiles_repo": "...", "profilo": "..."}` | `deloitte-profiles/<progetto>/` | `todo/`, `in-progress/`, `done/` |
+| **Standalone** (repo dedicata) | `{"project_repo": "...", "project_name": "..."}` | `<project_repo>/` con `dataset/` Solaria-side | `draft/`, `todo/`, `in-progress/`, `done/` |
+
+- **Nuovi progetti**: adottano la **modalita' standalone** (raccomandato). Una repo Git per progetto (es. `banca-agente`), con cartella `dataset/` popolata Solaria-side (branding, glossario, attori, perimetro), plus la nuova area `plans/draft/` dove Solaria authora l'AFU prima dell'handoff al team tecnico via GitHub Git Trees API.
+- **Progetti esistenti** (es. `banca-agente` in questa repo): continuano in **modalita' legacy** senza modifiche. La transizione e' graduale: nessun obbligo di migrazione, le skill restano duali e auto-detect dal `.br-local.json` di ciascuna repo applicativa.
+
+L'orchestrazione del flusso e' descritta in `claude-flow/docs/Fasi-New-way-of-working.md` (2 fasi composite: Fase 1 Pre-Coding [1a/b/c] + Fase 2 Coding & Test [2a/b/c]). I contratti d'interscambio Solaria↔Claude Code (schema `afu-manifest.json` v2 esteso, formato Excel bug con colonna `origine`, struttura playbook test) sono documentati in `claude-flow/docs/SOLARIA_SDLC_INTEGRATION.md`.
+
 ## Directory Structure
 
 ```
