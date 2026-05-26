@@ -23,17 +23,7 @@ In order to run the application on your local machine, follow these steps:
 
 
 
-## Crypt/Decrypt feature on Local development ##
 
-In order to use the Crypt/Decrypt feature on your local development fill your application-local.yaml file with the
-follow configuration:
-
-```javascript
-security:
-    aes:
-        secret-key: "9T58p92CKQS4qvhU3AEHFKCxPRLwsyQv"
-        init-vector: "M5GrAiEgXwQR3bni"
-```
 
 
 ## Creating secured APIs (@Controller) ##
