@@ -184,3 +184,23 @@ Ultimo aggiornamento: `2026-05-21 09:00` (T-024 al 70%: Fasi A+B+C tecniche comp
     - PUT covenant aggiorna solo i metadati; se cambia la `periodicity` il numero/posizione degli eventi NON viene rigenerato automaticamente. Fix futuro: chiamare `scheduleGeneratorService.regenerateEvents()` quando `periodicity` cambia.
   - **Verifiche**: BE `mvn compile` SUCCESS. FE `tsc --noEmit --skipLibCheck` PASS. JSON i18n IT+EN validi.
   - **Pushed**: BE `feature/monitoring-integration-uat` (1c91c66..25ba16f — 1 commit), FE `feature/monitoring-integration-uat` (df82634..c3a90ac — 1 commit).
+
+### 2026-05-26
+- **STEP 5c fix routing + STEP 6 Gestione Eccezioni chiusi (Davide)**: chiuso ciclo STEP 5c rimanenti + completato STEP 6 end-to-end. Durata ~2h. Sessione AI chiusa al ~80% context con handoff per ripresa pulita.
+  - **Fix routing Modifica Dati Covenant + semaforo scadenziere** (commit FE `8cfda71`):
+    - `navigateToEditCovenant` usava `['../../covenant', id, 'edit']` con `relativeTo: route` → da `practice/:id` saliva 2 livelli a `/monitoring` e il router fallback su `/consultant` dashboard. Fix: path relativo `['covenant', id, 'edit']` (sub-route).
+    - `covenant-edit-page.goBack` usava `['../../../practice', id]` errato → fix `['../../..']` (3 segmenti su).
+    - Schedule-tab Scadenziere mostrava ancora semafori grigi NESSUNO_STATO (il fix precedente toccava solo covenant-detail e practice-detail.mapEventToRow) → estratto `buildStatusCell` con check NESSUNO_STATO → `'—'`.
+    - Chiarito: button "Salta Monitoraggio" / "Ignora Soglia" intenzionalmente assenti per utente Consultant — BR sez. 4.2.5+4.2.6: ISP-only. Consultant vede solo "Visualizza Eccezione" se hasException.
+  - **Fix i18n `monitoring.documents.upload.dragDrop`** (commit FE `67aecf5`): chiave mancante nel dialog Richiesta Eccezione file-upload (alias di `dragMessage`).
+  - **STEP 6 Gestione Eccezioni completata** (commit FE `f714585` + `c9ba5cd`):
+    - Flusso end-to-end testato e funzionante. ISP "Salta Monitoraggio" su M1C1E1 → request exception con motivazione "Sto testando" + file PDF allegato (155KB). DB: status=OK, has_exception=1, actual_date=2026-05-26. Document riga inserita con file_reference=NULL (binario non persistito).
+    - Deloitte "Visualizza Eccezione" mostra dialog read-only con motivazione + button "Annulla Eccezione" → click cancella eccezione, status ricalcolato a SCADUTO, scadenziere torna rosso.
+    - **Implementata sezione "Documenti allegati"** nel dialog Visualizza Eccezione (BR sez. 4.2.6): chiamata `getExceptionDocuments` rinominata da singolare a plurale + ritorna `List<MonitoringDocumentModel>` JSON (fix bug latente declassato sweep STEP 4 — il FE chiamava blob ma il BE rispondeva sempre JSON). Lista `<ul>` con icona pi-file + filename + size in KB per ogni documento + icona warning `i pi-info-circle` con `title` HTML nativo "Download non disponibile". Su mode='view' `open()` chiama `loadAttachedDocuments`.
+    - Parent practice-detail.`openViewExceptionDialog` ora passa `event.id` al dialog tramite `@Input eventId` per la chiamata API.
+    - Spec `monitoring.service.spec.ts` aggiornato: `getExceptionDocuments` ritorna List<DTO> invece di Blob.
+    - i18n IT+EN: chiavi `monitoring.exception.attachedDocuments` / `noAttachments` / `downloadNotAvailable`.
+    - Build fix: `pTooltip` rimpiazzato con attributo `title` HTML nativo (TooltipModule non importato nel MonitoringExceptionDialogModule).
+  - **Pushed**: FE `feature/monitoring-integration-uat` (c3a90ac..c9ba5cd — 4 commit: 8cfda71, 67aecf5, f714585, c9ba5cd). BE nessuna modifica nuova questa sessione (rimane su 25ba16f del STEP 5c).
+  - **Bug noti residui STEP 7+**: (a) `file_reference=NULL` document eccezione — storage binario gap T-024.x; (b) `[object Object]` nella colonna "Caricato da" della document-history visto in screenshot STEP 6 — probabile binding `uploadedBy` come oggetto, da investigare; (c) altri 6 bug residui gia' segnalati nelle sezioni precedenti.
+- **HANDOFF generato**: `handoff/HANDOFF_2026-05-26_smoke_e2e_step6.md` con stato completo, fixture DB, comandi rapidi, e starting point STEP 7 GenAI Deloitte per la nuova sessione.
