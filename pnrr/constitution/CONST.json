@@ -1,0 +1,59 @@
+{
+  "$schema": "../../const-schema.json",
+  "inviolable_principles": {
+    "security": {
+      "rule": "Tutto il codice deve rispettare OWASP Top 10",
+      "scope": "ogni endpoint, input utente, query, gestione dati sensibili (PII, dati bancari, ATECO, pratiche cliente)",
+      "verification": "verifica obbligatoria prima del merge"
+    },
+    "accessibility": {
+      "rule": "Tutto il codice frontend deve rispettare WCAG 2.1 AA",
+      "requirements": [
+        "navigabile da tastiera",
+        "compatibile screen reader",
+        "contrasto AA",
+        "attributi ARIA corretti"
+      ]
+    },
+    "responsiveness": {
+      "rule": "Tutto il codice frontend deve essere responsive",
+      "breakpoints": ["mobile", "tablet", "desktop"]
+    },
+    "data_privacy": {
+      "rule": "Mai loggare PII, dati bancari o token; rispettare GDPR per ogni dato personale",
+      "scope": "log applicativi, error tracking, analytics, response API"
+    }
+  },
+  "quality_standards": {
+    "test_coverage": {
+      "minimum_percent": 80,
+      "applies_to": ["unit", "integration"]
+    },
+    "error_handling": "Gestire ogni errore esplicitamente, mai swallow; user-facing friendly, server-side con context (mai esporre stack trace al FE: application.show-exception-detail-fe = false)",
+    "logging": {
+      "format": "structured (logback + logstash-logback-encoder)",
+      "never_log": ["PII", "credenziali", "JWT token", "AES keys", "dati bancari", "codici ATECO clienti"]
+    },
+    "performance": {
+      "api_latency_p95_ms": 200,
+      "frontend_lcp_ms": 2500
+    }
+  },
+  "code_style": {
+    "max_function_lines": 50,
+    "max_file_lines": 800,
+    "max_nesting_depth": 4,
+    "no_magic_numbers": true,
+    "no_debug_statements_in_prod": true
+  },
+  "git_workflow": {
+    "branch_pattern": "feature/PNRRSTD-<ticket-id>-<short-desc> | feature/<area-or-customer> | fix/<short-desc>. Main branch: develop",
+    "commit_convention": "conventional commits (feat:, fix:, refactor:, docs:, test:, chore:) -- standardizzazione target su tutta la codebase"
+  },
+  "architectural_patterns": {
+    "layered_separation": "Backend: web/rest (controller) -> service -> repository -> domain. Dipendenze unidirezionali. Frontend Angular: feature module -> service -> http client.",
+    "api_response_envelope": "Shape consistente: { status, data|null, error|null, meta? } -- gli error handler restituiscono messaggi generici al FE, dettagli solo nei log",
+    "test_pattern": "Arrange-Act-Assert; JUnit 5 + Mockito + AssertJ (BE); Karma + Jasmine (FE); nomi test descrittivi del comportamento atteso",
+    "input_validation": "validare sempre ai boundary del sistema (controller con @Valid + Bean Validation; FE con formly validators)"
+  }
+}

@@ -1,0 +1,283 @@
+{
+  "$schema": "../../profile-schema.json",
+  "project": {
+    "name": "pnrr",
+    "client": "Multi-cliente: Intesa Sanpaolo (ISP), Banco BPM (BPM), Banca di Desio (DESIO), Artigian Credito (ACT), Deloitte (DTTL)",
+    "description": "Piattaforma gestionale per la richiesta e il monitoraggio di incentivi PNRR (Piano Nazionale di Ripresa e Resilienza). Sistema multi-cliente white-label con architettura a microservizi: 1 API Gateway (security-manager) + 3 servizi Spring Boot/Java 21 (incentive-manager, document-manager, email-manager) + 1 SPA Angular 16 (web). Supporta diverse tipologie di pratiche (A, B, C, DNSH, Agribusiness) attraverso una macchina a stati gerarchica (~50 fasi, ~165 stati)."
+  },
+  "tech_stack": {
+    "backend": {
+      "language": "Java 21",
+      "framework": "Spring Boot 3.2.x/3.3.x + Spring Cloud 2023.0.0",
+      "database": "MySQL 8 (incentive-manager, email-manager); MongoDB (document-manager); nessun DB locale per security-manager (gateway)",
+      "orm": "Spring Data JPA + Hibernate (MySQL services); Spring Data MongoDB (DOC)",
+      "build": "Maven (mvnw wrapper)",
+      "services": {
+        "incentive-manager": {
+          "sigla": "BE",
+          "port": 8081,
+          "responsibility": "Core business: pratiche, gestori bancari, comunicazioni, agribusiness, DNSH, integrazione Cribis/Infocert/AWS Lambda/Azure",
+          "key_libs": [
+            "MapStruct 1.5.2",
+            "Lombok 1.18.30",
+            "Caffeine cache",
+            "POI 5.2.3 + OpenCSV 5.8 (Excel/CSV)",
+            "iText html2pdf 4 + flying-saucer 9.3.1 + PDFBox 3 (PDF)",
+            "Apache Tika 2.9.1",
+            "ShedLock 5.12 (cron distribuiti)",
+            "Passay 1.6 (password policy)",
+            "TOTP 1.7 (2FA)",
+            "Spring Cloud AWS 2.4.2 (S3)"
+          ]
+        },
+        "document-manager": {
+          "sigla": "DOC",
+          "port": 8083,
+          "responsibility": "Gestione documenti (upload/download/validazione MIME)",
+          "key_libs": [
+            "Spring Data MongoDB",
+            "Apache Tika 2.9.1 (validazione file)",
+            "MapStruct",
+            "Lombok"
+          ]
+        },
+        "email-manager": {
+          "sigla": "EMAIL",
+          "port": 8082,
+          "responsibility": "Invio email transazionali con templating",
+          "key_libs": [
+            "Spring Mail (SMTP starttls)",
+            "Thymeleaf (templating)",
+            "MapStruct",
+            "Lombok"
+          ]
+        },
+        "security-manager": {
+          "sigla": "SEC",
+          "port": 8080,
+          "responsibility": "API Gateway frontale (Spring Cloud Gateway), autenticazione/autorizzazione JWT, OAuth2, AES encryption",
+          "key_libs": [
+            "Spring Cloud Gateway",
+            "Spring WebFlux (reactive)",
+            "Spring Security OAuth2 Client + Resource Server",
+            "jjwt 0.12.5"
+          ]
+        }
+      }
+    },
+    "frontend": {
+      "language": "TypeScript 5.0.4",
+      "framework": "Angular 16.2.4 (NgModule-based, non standalone)",
+      "build": "Angular CLI 16 + Webpack (output: dist/pnrr-web)",
+      "services": {
+        "web": {
+          "sigla": "FE",
+          "responsibility": "SPA gestionale per gestori bancari, amministratori, consulenti Deloitte e clienti finali",
+          "ui_library": "PrimeNG 16.5 + PrimeFlex 3.3.1 + PrimeIcons 6 + @ngx-formly/primeng 6.1.8 (form dinamici JSON-driven)",
+          "auth": "@azure/msal-angular 4.0.6 + @azure/msal-browser 4.7.0 (Microsoft SSO)",
+          "key_libs": [
+            "@ngx-translate/core 16 (i18n)",
+            "@swimlane/ngx-datatable 20",
+            "FullCalendar 6",
+            "chart.js 4 + chartjs-plugin-datalabels 2.2",
+            "ExcelJS 4",
+            "crypto-js 4",
+            "ngx-logger 5",
+            "moment 2.29",
+            "ngx-mask 12",
+            "file-saver 2"
+          ],
+          "test_framework": "Karma + Jasmine"
+        }
+      }
+    },
+    "infrastructure": {
+      "containerization": "Jib Maven Plugin 3.4.0 (Docker image build da Maven)",
+      "deployment": "Kubernetes (conf-k8s in SEC; secret/config esterni)",
+      "object_storage": "AWS S3 (documenti pratiche)",
+      "logging": "Logback + logstash-logback-encoder (structured logging)",
+      "tracing": "Micrometer tracing-bridge-brave"
+    },
+    "github_organization": "Deloitte-Central-Mediterranean",
+    "repositories": [
+      {
+        "name": "PNRR-incentive-manager",
+        "sigla": "BE",
+        "url": "git@github.com:Deloitte-Central-Mediterranean/PNRR-incentive-manager.git",
+        "main_branch": "develop"
+      },
+      {
+        "name": "PNRR-web",
+        "sigla": "FE",
+        "url": "git@github.com:Deloitte-Central-Mediterranean/PNRR-web.git",
+        "main_branch": "develop"
+      },
+      {
+        "name": "PNRR-document-manager",
+        "sigla": "DOC",
+        "url": "git@github.com:Deloitte-Central-Mediterranean/PNRR-document-manager.git",
+        "main_branch": "develop"
+      },
+      {
+        "name": "PNRR-email-manager",
+        "sigla": "EMAIL",
+        "url": "git@github.com:Deloitte-Central-Mediterranean/PNRR-email-manager.git",
+        "main_branch": "develop"
+      },
+      {
+        "name": "PNRR-security-manager",
+        "sigla": "SEC",
+        "url": "git@github.com:Deloitte-Central-Mediterranean/PNRR-security-manager.git",
+        "main_branch": "develop"
+      }
+    ]
+  },
+  "conventions": {
+    "package_structure": "it.deloitte.pnrr.<service>.{config,domain,repository,service,web,utils}",
+    "layers": [
+      "web/rest (controller)",
+      "service (business logic)",
+      "repository (data access)",
+      "domain (entity + DTO + mapper)",
+      "config"
+    ],
+    "base_entity": "Nessuna BaseEntity globale rilevata; entita' Lombok-annotated; mapping DTO-entity via MapStruct",
+    "api_prefix": "/api/... (privati, JWT + @RolesAllowed) | /api/public/... (pubblici, bypass auth via gateway)",
+    "test_framework": "Backend: spring-boot-starter-test (JUnit 5 + Mockito) -- stato attuale: 0 test scritti in incentive-manager. Frontend: Karma + Jasmine.",
+    "test_naming": "Da definire (test BE assenti). Target: methodName_scenario_expectedBehavior + @DisplayName",
+    "branch_convention": "feature/PNRRSTD-<ticket-id>-<desc> | feature/<area-or-customer> (es. feature/billing-act, feature/cr-act-registration) | fix/<desc>. Main: develop.",
+    "commit_convention": "Mix attuale (conventional + 'Feat: Sprint X.Y' + descrittivi in italiano). Target: conventional commits su tutti i repo.",
+    "rest_conventions": {
+      "public_pattern": "/api/public/<resource>/...",
+      "private_pattern": "/api/<resource>/...",
+      "auth_enforcement": "security-manager (gateway) lascia passare /api/public/** senza filtro; altre rotte richiedono JWT valido + @RolesAllowed nel controller",
+      "max_multipart_size": "350MB (BE, SEC); 200MB (DOC)"
+    },
+    "code_generation": {
+      "mapping": "MapStruct 1.5.2 con lombok-mapstruct-binding 0.2.0 (richiede 'mvn clean install' per rigenerare mapper)",
+      "boilerplate_reduction": "Lombok 1.18.30 (@Data, @Builder, @Slf4j, @RequiredArgsConstructor)"
+    },
+    "external_integrations": {
+      "credit_data": "Cribis (verifica dati aziendali)",
+      "digital_identity": "Infocert (firma digitale)",
+      "auth_provider": "Azure AD via MSAL (SSO Microsoft)",
+      "cloud_storage": "AWS S3 (documenti pratiche)",
+      "scheduling": "ShedLock per cron distribuiti, AWS Lambda per task asincroni"
+    }
+  },
+  "design_system": {
+    "palette": {
+      "strategy": "Multi-tenant white-labeling: 6 temi distinti per cliente in src/assets/themes/ + src/styles/customers/",
+      "themes": {
+        "isp": "Intesa Sanpaolo -- green #0a5028, orange #ff4d00, ocean blue #00587c, earth gold #daaa00 (9 shade per colore)",
+        "bpm": "Banco BPM",
+        "desio": "Banca di Desio",
+        "act": "Artigian Credito",
+        "dttl": "Deloitte (uso interno)",
+        "base": "Tema default/template"
+      },
+      "product_colors": {
+        "primary": "var(--incent-now-green) = #42c664",
+        "primary_hover": "#3bb25a",
+        "primary_active": "#359e50",
+        "neutral_grays": ["#888b8d", "#63666a", "var(--cool-gray-7) = #64748B"],
+        "semantic_orange": "#F59E0B",
+        "semantic_blue": "#3B82F6"
+      }
+    },
+    "typography": {
+      "scale": {
+        "h1": "2.188rem (35px)",
+        "h2": "1.75rem (28px)",
+        "h3": "1.5rem (24px)",
+        "h4": "1.313rem (21px)",
+        "h5": "1.1rem (17.6px)",
+        "h6": "1rem (16px)"
+      },
+      "h2_h6_weight": "normal"
+    },
+    "components": {
+      "framework": "PrimeNG 16.5 (override styles in src/styles/modules/_*.scss)",
+      "form_engine": "@ngx-formly/primeng 6.1.8 (form dinamici JSON-driven)",
+      "datatable": "@swimlane/ngx-datatable 20",
+      "calendar": "FullCalendar 6 + PrimeNG Calendar",
+      "charts": "chart.js 4 + chartjs-plugin-datalabels",
+      "editor": "@kolkov/angular-editor (WYSIWYG)"
+    },
+    "stylesheet_structure": "src/styles/{base,customers,modules}/_*.scss + src/assets/themes/<bank>/theme.scss",
+    "reference_files": [
+      "references/README-FE.md",
+      "references/CONTRIBUTING-FE.md"
+    ]
+  },
+  "domain": {
+    "glossary": {
+      "Pratica (Practice)": "Istanza di richiesta di incentivo da parte di un'azienda cliente. Tipi: A, B, C, DNSH, AGRIBUSINESS, AGRIBUSINESS_SINGLE_YEAR. Attraversa una macchina a stati (PSM).",
+      "PSM (Practice State Machine)": "Macchina a stati gerarchica che governa il ciclo di vita della pratica. ~50 fasi (PsmPhase) e ~165 stati (PsmState).",
+      "Fase PSM (PsmPhase)": "Macro-step del processo (es. PRACTICE_ACTIVATION, REQUEST_FILLING, MONITORING_REPORTING, ADVICE, O_1, A_1..G_4, DNSH_*).",
+      "Stato PSM (PsmState)": "Sotto-stato all'interno di una fase (es. A_1_DOCUMENTATION_INCOMPLETE -> A_1_DOCUMENTATION_TO_VALIDATE -> A_1_DOCUMENTS_VALIDATED).",
+      "DNSH (Do No Significant Harm)": "Principio PNRR per cui il progetto non deve danneggiare gli obiettivi ambientali UE. E' anche un tipo di pratica con fasi dedicate (DNSH_PRACTICE_ACTIVATION, DNSH_CHECKLIST_EX_ANTE, DNSH_CHECKLIST_EX_POST).",
+      "Agribusiness": "Settore agricolo con flusso dedicato. Varianti single-year/multi-year. Concetti: Budget Plan, Budget Scheme, IOCR Extraction. Fasi AGRIBUSINESS_1, COMPILE_BUDGET_SCHEME, BUDGET_PLAN.",
+      "Transizione 5.0": "Servizio dedicato per incentivi su trasformazione digitale ed energetica delle imprese. Fasi A_1_1..A_1_4 con varianti _QUESTION per documentazione di domanda separata.",
+      "CER (Comunita' Energetiche Rinnovabili)": "Servizio dedicato a pratiche per comunita' energetiche. Fase A_1_9.",
+      "ATECO": "Codice di classificazione attivita' economiche, fondamentale per identificare il settore dell'azienda richiedente.",
+      "Banca (Bank)": "Entita' cliente che gestisce le pratiche. Multi-banca: ISP, BPM, DESIO, ACT.",
+      "BankDivision": "Divisione organizzativa interna alla banca.",
+      "BankLevel": "Livello gerarchico interno alla banca.",
+      "BankManager": "Gestore bancario (ruolo utente) che lavora sulle pratiche assegnate. Visibilita' governata da BankManagerVisibilityAspect.",
+      "Indipendenza (Independence)": "Verifica di indipendenza del consulente Deloitte rispetto al cliente (compliance audit).",
+      "Cribis": "Servizio esterno per verifica dati aziendali (visure, bilanci).",
+      "Infocert": "Servizio esterno per firma digitale documenti.",
+      "Checklist Ex-Ante / Ex-Post": "Liste di verifica prima (Ex-Ante) e dopo (Ex-Post) l'attivita' di consulenza.",
+      "Budget Plan / Budget Scheme": "Piano/Schema di budget per pratiche Agribusiness, validato in piu' step (TO_BE_VALIDATED -> VALIDATED -> CONCLUDED).",
+      "Communication": "Sistema interno di comunicazioni verso utenti/banche con configurazione (CommunicationConfig) e decisioni (CommunicationDecision).",
+      "PNRR": "Piano Nazionale di Ripresa e Resilienza -- quadro normativo italiano per la gestione dei fondi NextGenerationEU.",
+      "Clienti white-label": "ISP = Intesa Sanpaolo, BPM = Banco BPM, DESIO = Banca di Desio, ACT = Artigian Credito, DTTL = Deloitte Touche Tohmatsu Limited (uso interno)."
+    },
+    "business_rules": [
+      "Le API pubbliche usano il prefisso /api/public/... per essere accessibili senza autenticazione (bypass dal security-manager gateway).",
+      "Le API private (/api/...) richiedono JWT valido + autorizzazione role-based via @RolesAllowed.",
+      "Le pratiche DNSH seguono un flusso dedicato con checklist Ex-Ante e Ex-Post obbligatorie.",
+      "Le pratiche Agribusiness possono essere single-year o multi-year e richiedono Budget Plan/Scheme validato prima della finalizzazione.",
+      "Servizio Transizione 5.0: fasi A_1_1 fino A_1_4 con varianti _QUESTION per documentazione di domanda separata.",
+      "Servizio CER (Comunita' Energetiche Rinnovabili) usa esclusivamente la fase A_1_9.",
+      "Login: max 3 tentativi in 2 minuti, poi blocco temporaneo (security-manager).",
+      "JWT TTL: 24h (security-manager).",
+      "Cifratura: AES-256-CBC per dati sensibili (chiave AES + IV in k8s secret).",
+      "Multi-tenant white-labeling: tema FE (palette/logo) dipende dalla banca dell'utente loggato.",
+      "Multipart upload: max 350MB (BE, SEC); max 200MB (DOC).",
+      "Schema DB: ddl-auto='none' su incentive-manager (migrazioni manuali); 'update' su email-manager.",
+      "Hibernate open-in-view=true (attenzione N+1 queries; default_batch_fetch_size=30 come mitigazione).",
+      "Mai esporre stack trace al FE: application.show-exception-detail-fe=false."
+    ],
+    "entity_states": {
+      "Practice.type": ["A", "B", "C", "DNSH", "AGRIBUSINESS", "AGRIBUSINESS_SINGLE_YEAR"],
+      "PsmPhase (principali)": [
+        "PRACTICE_ACTIVATION", "REQUEST_FILLING", "REQUEST_SENT", "MONITORING_REPORTING", "DATA_COLLECTION", "ADVICE",
+        "O_1", "O_2", "O_ESG", "A_1", "A_1_1..A_1_9", "A_2", "A_3", "A_4", "B_1", "B_2", "C_1", "C_2",
+        "D_1..D_5", "D_1_1..D_1_13", "E_1", "F_1", "G_1..G_4", "G_5_NO_BLOCKER..G_7_NO_BLOCKER",
+        "PRACTICE_CONFIRMED", "PRACTICE_REJECTED",
+        "AGRIBUSINESS_1", "COMPILE_BUDGET_SCHEME", "BUDGET_PLAN",
+        "DNSH_PRACTICE_ACTIVATION", "DNSH_CHECKLIST_EX_ANTE", "DNSH_CHECKLIST_EX_POST"
+      ],
+      "PsmState pattern A_x (documenti)": [
+        "A_x_DOCUMENTATION_INCOMPLETE",
+        "A_x_DOCUMENTATION_TO_VALIDATE",
+        "A_x_DOCUMENTS_VALIDATED"
+      ],
+      "PsmState pattern G_x (billing)": [
+        "G_x_BILL_TO_BE_ISSUED",
+        "G_x_BILL_TO_PAY",
+        "G_x_BILL_TO_BE_VALIDATED",
+        "G_x_RECEIPT_REJECTED",
+        "G_x_BILL_CASHED"
+      ],
+      "PsmState pattern D_x (appointment)": [
+        "D_x_APPOINTMENT_TO_BE_BOOKED",
+        "D_x_APPOINTMENT_BOOKED",
+        "D_x_CHECKLISTS_UPLOADED"
+      ]
+    }
+  },
+  "custom_agents": []
+}
