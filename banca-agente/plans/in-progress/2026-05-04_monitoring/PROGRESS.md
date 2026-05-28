@@ -1,7 +1,7 @@
 # Progresso Implementazione Modulo Monitoraggio (BR V6)
 
 Data creazione: `2026-05-05`
-Ultimo aggiornamento: `2026-05-21 09:00` (T-024 al 70%: Fasi A+B+C tecniche complete, 579/579 test FE monitoring PASS + 106/106 BE PASS. Restano D+E con funzionale ISP+Carmine)
+Ultimo aggiornamento: `2026-05-26 14:45` (T-024 smoke E2E: STEP 1-6 DONE. Mergiati `feature/monitoring-alignment-be/fe-v2` (Georgios) e `feature/monitoring-bugfixes` (Alexios) sul branch UAT. Pronti per STEP 7 GenAI Deloitte.)
 
 ## Riepilogo
 
@@ -204,3 +204,143 @@ Ultimo aggiornamento: `2026-05-21 09:00` (T-024 al 70%: Fasi A+B+C tecniche comp
   - **Pushed**: FE `feature/monitoring-integration-uat` (c3a90ac..c9ba5cd — 4 commit: 8cfda71, 67aecf5, f714585, c9ba5cd). BE nessuna modifica nuova questa sessione (rimane su 25ba16f del STEP 5c).
   - **Bug noti residui STEP 7+**: (a) `file_reference=NULL` document eccezione — storage binario gap T-024.x; (b) `[object Object]` nella colonna "Caricato da" della document-history visto in screenshot STEP 6 — probabile binding `uploadedBy` come oggetto, da investigare; (c) altri 6 bug residui gia' segnalati nelle sezioni precedenti.
 - **HANDOFF generato**: `handoff/HANDOFF_2026-05-26_smoke_e2e_step6.md` con stato completo, fixture DB, comandi rapidi, e starting point STEP 7 GenAI Deloitte per la nuova sessione.
+
+### 2026-05-26 (pomeriggio)
+- **MERGE Georgios `feature/monitoring-alignment-{be,fe-v2}` (PR #27 BE + #27 FE)**: Davide ha pullato su `feature/monitoring-integration-uat`. BE 25ba16f → ffbb1da, FE c9ba5cd → 04e1889.
+  - **BE — 2 commit (cbc6a35 + 77caafa)** — Mailing List AD Form storage + state validation + enum:
+    - Storage AD Form via `DocumentManagerService` (categoria `PRACTICE` esistente, no nuova categoria) invece di scartare il content come prima.
+    - Nuovo endpoint `GET /monitoring/practices/{id}/ad-form/download` con `ResponseEntity<Resource>` + Content-Disposition attachment.
+    - Validazione transizioni stato: `confirm`/`reject` solo da `DOC_COMPLETA`, `extract` solo da `DOC_CONFERMATA` (fix bug noto #7 dell'handoff: state mai persistito in `VERIFICA_IN_CORSO`).
+    - Enum display "Documentazione" (non "Documento") allineato al BR.
+    - Aggiunto field `fileReference` a entity `MailingListAdForm` + DTO + colonna `file_reference` in migration `007_monitoring_mailing_list.sql`.
+    - 34 test aggiornati (`MailingListServiceTest`: 448 righe vs 243 originali — coverage storage, download, invalid transitions).
+  - **FE — 3 commit (daafba0 + 3810bc5 + 094cbe9)** — Mailing list role visibility + Spread tab BR alignment:
+    - **Mailing list role visibility** (daafba0): nuovo `downloadAdForm` su `MonitoringMailingListService` + button download nella bar AD Form (detail page) e nel dialog richiesta ISP. AD Form section + stepper + contacts CRUD restricted a Deloitte. `showReportSection` gated `isConsultant` → ISP vede report solo a `REPORT_GENERATO`. Migrato tutti `<button pButton>` raw a `<app-button>`. i18n IT+EN tooltip download.
+    - **Spread tab BR alignment** (3810bc5): re-implementazione completa per BR sez. 3.5, 7.3.4-7.3.5:
+      - Document bar contratto finanziamento con View + Download (BR 7.3.4) + nuovi metodi `getFinancingAgreement` / `downloadFinancingAgreementDoc` su `MonitoringSpreadService`.
+      - Colonne ISP validated table: Cluster, Sottostante, Valore Sottostante, Margine (BR 3.5.1).
+      - Colonne ISP storico: Data Variazione, Documento, Azione (Scarica), Cluster (BR 3.5.2).
+      - Colonne Deloitte storico: Data Riferimento, Data avvenuto, Valore Monitorato, Cluster, Margine (BR 7.3.5).
+      - Highlight newest storico row + grey older, sort desc by date, paginator sempre visibile, empty message custom.
+      - Disclaimer full BR text, rename button "Verifica e salva" (BR 7.3.4).
+      - Covenant field: da input text libero a `p-dropdown` popolato dai practice covenants (BR 7.3.5). Covenants passati da `practice-detail` parent via `@Input`.
+      - Nuovi model: `FinancingAgreementDocModel`, +`documentName`/`documentId` su `SpreadHistoryModel`.
+    - **Spread + mailing list role visibility** (094cbe9): ISP vede waiting message durante `EDITING` Deloitte invece della tabella parziale (BR 7.2, 7.3.6). Mailing list "Annulla Richiesta" disabled da `DOC_CONFERMATA` in poi (BR 6.3.2). "Visualizza Report" invece di "Aggiorna" per Deloitte quando report ready.
+- **MERGE Alexios `feature/monitoring-bugfixes` (PR #28 BE + #28 FE)**: Davide ha pullato. BE ffbb1da → c2737c4, FE 04e1889 → 81eade3.
+  - **BE — delta netto 1 file** (d9b8192 + 25dc563): la maggior parte delle modifiche di Alexios (covenant DTO counts, dashboard event filter, summary view, endpoint mapping su 7 controller) erano gia' state implementate in parallelo da Davide nei commit `888e704`/`0df3952` STEP 4. Unico delta che residua dopo il merge: `MonitoringDocumentService.uploadCertificate` ora usa `categoryCode="PRACTICE"` invece di `"MONITORING_CC"` — allineamento alla stessa logica `PRACTICE` reused che Georgios ha applicato per AD Form (77caafa). Questo sblocca lo storage reale del Compliance Certificate via `DocumentManagerService` per STEP 7.
+  - **FE — 2 commit (0297fde + ffbd7fc)** — various bugfixes + manual assignment fix:
+    - **various frontend bugfixes** (0297fde): refactoring sostanziale su 8 file:
+      - `dashboard.component.{ts,html}`: refactor HTML 146 righe (probabile riallineamento ai dati BE post-fix STEP 3).
+      - `document-history.component.{ts,html}`: refactor 137 righe HTML + 139 TS — verificato che i due button GenAI di T-018 sono **intatti**: `<button *ngIf="canStartGenAi(...)" pi-bolt>` (line 54) e `<button *ngIf="canModifyGenAi(...)" pi-pencil>` (line 59), `startGenAiExtraction` chiamato a riga 130.
+      - `document-upload.component.ts` (+23): fix flusso upload Compliance Certificate — coerente con BE category fix.
+      - `practice-detail.module.ts` (+2 import): nuovo modulo cablato.
+      - i18n IT+EN +35 ciascuno: nuove chiavi `monitoring.documents.upload.{title,selectEvent,selectEventPlaceholder,dragMessage,success,error}`, `monitoring.documents.history.title`, `monitoring.documents.{status,daysInQueue,fileName,eventCode,covenantCode,uploadDate,uploadedBy,actions,reject.{title,reason,reasonPlaceholder,confirm}}` + `monitoring.covno.uploading`. Risolve bug noto #3 dell'handoff (`[object Object]` colonna "Caricato da" se Alexios ha sistemato il binding `uploadedBy`).
+    - **fix dropdown manual assignment + tooltip rejected reason** (ffbd7fc): `cc-assignment.component.{ts,html}` +44/+1 (wizard step 4 fix — dropdown manuale CC assignment ora popola correttamente le opzioni Compliance Certificate disponibili). `document-history.component.{ts,html}` +60/+13 (tooltip esplicativo sulla colonna stato per documenti `REJECTED` con motivazione del rifiuto).
+- **Bug noti residui aggiornati**:
+  - **#7 `MailingListAdForm.state` VERIFICA_IN_CORSO** — RISOLTO da Georgios via state transition validation. Da verificare in STEP 9.
+  - **#3 `[object Object]` colonna "Caricato da"** — probabilmente RISOLTO da Alexios via refactoring `document-history`. Da verificare in STEP 7.
+  - **#1 `file_reference=NULL` document eccezione** — RIMASTO. Georgios ha sistemato lo storage per AD Form (mailing list) tramite `categoryCode=PRACTICE`, e Alexios ha allineato Compliance Certificate alla stessa logica, ma il flusso eccezione (`requestException`) salva ancora solo metadati senza binario. Gap T-024.x da affrontare in STEP 6 retroattivo o STEP 7+.
+  - **#2 `mp.deal_id`/`contract_key` NULL su M1** — RIMASTO (`createFromPostClosing` non li copia).
+  - **#4 CovenantTypeNumericEnum FE 10/58** — RIMASTO.
+  - **#5 Field "Variabile" input text vs dropdown SI/NO** — RIMASTO.
+  - **#6 PUT covenant non rigenera eventi se cambia periodicity** — RIMASTO.
+  - **#8 `MonitoringPracticeExcelWriterService` enum prefix bug** — RIMASTO.
+- **Verifica wiring critici per STEP 7 GenAI**:
+  - Button GenAI Deloitte (`pi-bolt` "Estrai" + `pi-pencil` "Modifica Dati") **confermati presenti** in `document-history.component.html` post-refactor Alexios.
+  - `MonitoringGenAiExtractionModule` import in `practice-detail.module.ts` da riverificare (file modificato da Alexios con +2 import).
+- **Branch state**: BE `feature/monitoring-integration-uat` HEAD = `c2737c4` (pushato). FE `feature/monitoring-integration-uat` HEAD = `81eade3` (pushato).
+- **Migration da applicare al DB locale**: solo `007_monitoring_mailing_list.sql` ha +1 riga (`ALTER TABLE ... ADD COLUMN file_reference VARCHAR(...)`). Migrations 008/009 erano gia' MIE (`888e704`/`e5c59a1`) e gia' applicate al DB locale.
+- **Action items pre-STEP 7**:
+  1. BE+FE build di sanity check post-merge (mvn compile + ng build / tsc --noEmit). **DONE 2026-05-26**:
+     - BE `mvn clean compile -DskipTests`: PASS (exit 0, nessun errore).
+     - FE `npx tsc --noEmit --skipLibCheck`: **prima del fix** 15 errori, tutti in 2 file SPEC test (production code FE pulito):
+       - `dashboard.component.spec.ts` (6 errori): `onFileSelected` rimosso dal component nel refactor Alexios `0297fde` — sostituito da split `onFilePicked(event)` (memorizza in `selectedFile`) + `onUploadConfirm()` (esegue upload).
+       - `document-history.component.spec.ts` (9 errori): `thead`/`tbody` ViewChild properties rimosse dal component nel refactor Alexios `0297fde` — sostituito da `documents: MonitoringDocumentModel[]` + helper `getStatusSeverity(status)` per il mapping colore.
+     - **FIX SPEC applicato 2026-05-26**:
+       - `dashboard.component.spec.ts`: 6 test del describe block `COVNO upload — onFileSelected` riscritti su API `onFilePicked + onUploadConfirm` (pattern pick-then-confirm, anche per i casi di pick vuoto). Aggiunta assertion `selectedFile` per documentare il nuovo state intermedio. Describe rinominato in `COVNO upload — onFilePicked + onUploadConfirm`.
+       - `document-history.component.spec.ts`: rimosso test "should initialize thead with 8 columns" (obsoleto, header e' ora dichiarativo nel template HTML); test mapping convertiti da `component.tbody[i][field]` a `component.documents[i].field` (modello tipato `MonitoringDocumentModel`); test default null→'-' convertito a verifica preservazione null nel modello (il fallback '-' e' ora nel template); test TagComponent severity convertiti a verifica diretta del helper `component.getStatusSeverity(...)`.
+     - **Verifica post-fix**: FE `npx tsc --noEmit --skipLibCheck` **PASS** (0 errori, exit 0).
+
+### 2026-05-27
+- **STEP 7 GenAI Deloitte chiuso end-to-end (Davide)**: smoke E2E del flusso Estrai → Modifica Dati → Conferma e Aggiorna su M1C1E2 PASS. Durata ~30min con 2 bug critici scoperti e risolti.
+  - **BUG ROOT — Race condition `@Async`** (commit BE `e442a02`): a runtime smoke STEP 7 dopo il click "Estrai con GenAI" il BE loggava `[T-018] Started GenAI extraction id=1` immediatamente seguito da `[T-018-MOCK] Failed GenAI extraction id=1: Extraction not found: 1` (java.lang.IllegalStateException, AsyncMonitoringGenAiProcess:63). Causa: `MonitoringGenAiService.startExtraction` `@Transactional` chiamava `asyncProcess.processExtractionAsync(saved.getId())` PRIMA che la TX committasse il save dell'Extraction → il task `@Async` partiva su thread separato (`cTaskExecutor-1`), apriva nuova TX e `findById(1)` non trovava nulla. Effetto secondario: il documento rimaneva bloccato in `GENAI_IN_CORSO` (mai promosso a `GENAI_DA_VALIDARE`), il button `pi-pencil` "Modifica Dati" mai visibile a FE. Fix: posticipato l'invocazione async ad `afterCommit()` della TX corrente via `TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() { @Override public void afterCommit() { ... } })`. Fallback al chiamata diretta se `!isSynchronizationActive()`. Verifica post-fix: log mostrano sequenza corretta `Started id=2` → commit → `[dPoolExecutor-1] Processing id=2 (mock mode)` → `Document moved to GENAI_DA_VALIDARE` → `completed with 9 mock fields`.
+  - **Fix secondario — TaskExecutor ambiguity warning** (stesso commit `e442a02`): warning Spring `More than one TaskExecutor bean found within the context, and none is named 'taskExecutor'. ... [asyncThreadPoolExecutor, threadPoolTaskScheduler]` causava fallback a `SimpleAsyncTaskExecutor` invece di usare il bean dedicato. Fix: `@Async("asyncThreadPoolExecutor")` esplicito su `processExtractionAsync` per usare il bean configurato in `AsyncConfig` (no modifiche ad AsyncConfig). Verifica: thread name passato da `cTaskExecutor-1` a `dPoolExecutor-1`.
+  - **BUG SINTOMO — FE polling mancante post-Estrai** (commit FE `<da committare>`): l'`onStartGenAi` in `document-history.component.ts:130` chiamava `loadDocuments()` IMMEDIATAMENTE dopo il `next` del subscribe `startGenAiExtraction`. A quel momento (~50ms dopo il click) il task `@Async` BE-side stava ancora processando (MOCK_DELAY_MS=500ms + commit), quindi l'UI cachava lo stato `GENAI_IN_CORSO` e mai più ricaricava. L'icona `pi-pencil` (gated `canModifyGenAi(status) === GENAI_DA_VALIDARE`) restava nascosta. Workaround manuale: F5 dopo qualche secondo. Fix: nuovo metodo privato `pollGenAiResultThenReload(documentId)` che usa rxjs `interval(1000s) + take(10) + switchMap(getGenAiResult) + takeWhile(status not in [READY_FOR_VALIDATION, FAILED, APPLIED], inclusive=true)`. Su `complete` chiama `loadDocuments()`. Max 10 retry → ~10s timeout sufficiente per mock 500ms e con margine ampio per AI vera entry-level (in produzione potrebbe servire estendere). Catch error su singola chiamata → ritorna null → polling continua. Imports aggiunti: `interval, of` da rxjs + `catchError, switchMap, take, takeWhile` da rxjs/operators + `MonitoringGenAiExtractionStatusEnum`.
+  - **Smoke E2E STEP 7 verifiche complete** (post-2 fix):
+    - **Estrai con GenAI** (M1C1E2D1, id=4): toast successo + transizione `IN_ATTESA_CONFERMA → GENAI_IN_CORSO → GENAI_DA_VALIDARE` visibile in UI senza F5 manuale (polling fix applicato).
+    - **Modifica Dati**: dialog mostra form 2-colonne con 9 chiavi mock `COVENANT_NUM_*` precompilate; utente modifica `monitoring_value` da 100000 a 150000 e conferma.
+    - **Conferma e Aggiorna**: PATCH covenant + event eseguita. DB finale: doc id=4 → `COMPLETATO`, extraction id=2 → `APPLIED`, event id=2 → ref=`2026-05-27`, exp=`2026-08-27` (+3 mesi mock), actual=`2026-05-27`, monitoring_value=150000.00, status=`FUORI_SOGLIA` (150000 > limite 70 LTE — calcolato dinamicamente). ✅
+  - **Bug noto #9 (T-024.x)** — Covenant fields non aggiornati dai mock GenAI: `value_limit_upper`, `sign`, `covenant_type`, `notes` rimangono i valori originali post-applyExtraction perche' i mock `AsyncMonitoringGenAiProcess.buildMockExtractedFields()` mandano label libere (`"Esempio Covenant Mock"`, `"<="`, `"Estratto automaticamente in mock mode"`) che non corrispondono agli enum BE (`LOAN_TO_VALUE`, `LTE`, ecc.). Il merge-patch in `MonitoringGenAiService.mergeCovenantPatch` accetta solo valori validi (non-null) e i mock non passano la validazione enum, quindi i campi covenant restano invariati. Solo `monitoring_value`, `reference_date`, `expiration_date`, `actual_date` dell'evento vengono aggiornati. Da affrontare in T-024.x: o allineare i mock ai valori enum validi, o aggiungere conversione label→enum nel merge.
+  - **Pushed pending**: BE `feature/monitoring-integration-uat` commit `e442a02` (gia' pushato). FE da committare e pushare.
+- **Checklist smoke E2E aggiornata**:
+  | # | Step | Stato |
+  |---|---|---|
+  | 7 | GenAI Deloitte (extract -> modify -> apply) | **DONE** |
+  | 8 | COVNO upload + storico | PENDING |
+  | 9 | Mailing list (CRUD + AD Form reject) | PENDING |
+  | 10 | Expired/expiring events pages | PENDING |
+
+- **Refactor BR-aligned wait — completato (Davide)**: dopo lo smoke E2E successo con la versione "polling+toast", l'utente ha chiesto di sostituire il polling con un meccanismo idiomatic. Verificate 4 alternative (A polling locale, B1 sistema notifiche multi-tenant DB-template, B3 DeferredResult+ApplicationEvent, C SSE/WebSocket): scelta **B3** perche' (a) il sistema notifiche BE esistente richiede template DB multi-customer e mostra l'evento nel header notification panel (invasive per flusso operativo frequente), (b) BR sez. 4.2.3 richiede esplicitamente "spinner mentre l'estrazione GenAI avra' luogo" senza menzione di panel notifications. DeferredResult e' la soluzione tecnicamente piu' allineata al BR.
+  - **BE 2 nuovi + 2 modificati** (commit `<da committare>`):
+    - NEW `GenAiExtractionCompletedEvent.java` (record event con extractionId/documentId/finalStatus).
+    - NEW `MonitoringGenAiWaiter.java` (`@Component` con `ConcurrentMap<Long, List<DeferredResult>>` + `@TransactionalEventListener(AFTER_COMMIT)` su `GenAiExtractionCompletedEvent` → risolve waiters chiamando `genAiService.getExtractionResult`).
+    - MOD `AsyncMonitoringGenAiProcess.java`: inject `ApplicationEventPublisher`; publish event on success (READY_FOR_VALIDATION) e in `handleFailure` finally (FAILED) per garantire risposta anche in path errore.
+    - MOD `MonitoringGenAiController.getResult`: ora ritorna `DeferredResult<ResponseEntity<...>>` con timeout 30s; accetta `?wait=true` (default false retrocompatibile); se wait+stato non terminale → sospende; `onTimeout` ritorna snapshot stato corrente.
+  - **FIX collaterale BE — JwtTokenFilter** (stesso commit): scoperto runtime `AccessDeniedException` durante async dispatch. `OncePerRequestFilter.shouldNotFilterAsyncDispatch()` di default ritorna `true` → JWT filter non rieseguito su async dispatch (re-dispatch fa dopo che il DeferredResult e' risolto dal thread `dPoolExecutor-1` esterno) → `SecurityContextHolder` vuoto → AnonymousAuthenticationToken → AuthorizationFilter denied. Fix: override `shouldNotFilterAsyncDispatch()` per ritornare `false`. Filter idempotent (rilegge stesso `Authorization` header), costo trascurabile (1 validazione JWT extra per request async).
+  - **FE 3 modificati** (commit `<da committare>`):
+    - MOD `monitoring.service.ts`: `getGenAiResult(documentId, wait?=false)` aggiunge `?wait=true`.
+    - MOD `document-history.component.ts`: rimosso `pollGenAiResultThenReload` + imports rxjs `interval/take/switchMap/takeWhile`; nuovo `onStartGenAi → waitForGenAiCompletion` (1 sola call BE che attende risultato terminale). Usa `SpinnerComponent.showLoader()/hideLoader()` (component statico globale gia' montato in `app.component.html` riga 4) per coerenza con pattern esistenti su altri 19+ componenti (AdminInvoiceService, InvoicesComponent, ecc.). Auto-apertura `showGenAiDialog=true` su READY_FOR_VALIDATION.
+    - MOD `document-history.component.{html,scss}`: rimosso overlay custom `.genai-overlay`.
+  - **Verifica E2E (utente)**: smoke STEP 7 ripetuto post-refactor, **PASS end-to-end** con spinner globale full-screen, 1 sola call BE, dialog Modifica Dati auto-aperto, applyExtraction + DB aggiornati correttamente.
+
+- **Gap noti aggiunti per T-024.x**:
+  - **#10 — BR 4.2.3 page-based UX**: la sezione "Modifica Dati GenAI" attuale e' un dialog modale con form 1-colonna (semplificazione T-018 gia' documentata). Il BR sez. 4.2.3 + mockup slides 17-24 prescrivono una **PAGINA dedicata** "Assegnazione - Compliance certificate {N}" con: (a) header + toolbar (Aggiungi Covenant / Annulla / Concludi Assegnazione), (b) N sezioni covenant dinamiche generate dall'estrazione (con dialog "Aggiungi Covenant" per nuove righe), (c) per ogni covenant: tipologia dropdown + importo + data riferimento + scadenziere inline-editable con bottoni "Assegna" / "Modifica Assegnazione" sui singoli eventi, (d) bottone "Conferma Assegnazione" finale. Refactor stimato ~2-3h, sostituisce `MonitoringGenAiExtractionComponent` con `MonitoringCcAssignmentPageComponent` + route + dialog Aggiungi Covenant + endpoint BE eventualmente da estendere. Da affrontare in T-024.x dopo completamento smoke STEP 8-10.
+  - **#9 — Mock GenAI label vs enum**: gia' documentato sopra, allineamento valori mock a enum BE.
+  2. Applicare ALTER TABLE 007 al DB locale se non gia' presente. **DONE 2026-05-26**: colonna `file_reference VARCHAR(255)` non era presente; applicato `ALTER TABLE mp_mailing_list_ad_form ADD COLUMN file_reference VARCHAR(255) AFTER upload_date;` con successo. **Nota nome tabella**: il DB locale usa `mp_mailing_list_ad_form` (non `mp_monitoring_mailing_list_ad_form` come ipotizzato).
+  3. Verificare che `MonitoringGenAiExtractionModule` sia ancora in `practice-detail.module.ts` imports. **DONE 2026-05-26**: import a riga 27 + uso a riga 81. Anche `MonitoringExceptionDialogModule` (26/80) e `MonitoringCovenantAddDialogModule` (28/82) intatti.
+  4. Restart BE+FE. **TODO** (utente).
+  5. Procedere con STEP 7 GenAI Deloitte come da handoff. **PENDING**.
+
+### 2026-05-27 (sera) — sessione continuazione
+- **STEP 8 COVNO upload + storico chiuso end-to-end (Davide)**: smoke E2E con XLSX `covno_test_M1.xlsx` (2 righe E3+E4 per M1C1). PASS al primo colpo, no bug rilevati.
+  - **Fixture XLSX**: `C:\Users\davmelis\Downloads\Monitoring e2e test\covno_test_M1.xlsx` con 2 righe valori covenant: E3 → value=50/actualDate=2026-11-23 (entro soglia OK), E4 → value=80/actualDate=2027-02-23 (oltre soglia 70 LTE → FUORI_SOGLIA).
+  - **DB post-upload**: `mp_covno_upload_history` → 1 record SUCCESS, processed=2 / updated=2, uploaded_by=`davide94x@gmail.com`, practice_id=8288. M1C1E3 → status=`OK`, value=50, actual_date=2026-11-23, data_source=`COVNO` ✓. M1C1E4 → status=`FUORI_SOGLIA`, value=80, actual_date=2027-02-23, data_source=`COVNO` ✓.
+  - **UI Tab Covenant**: conteggi aggiornati correttamente (`Scaduti=2, In Scadenza=0, OK=2` totali, con E3 OK + E4 SCADUTO insieme ai 2 eventi pre-esistenti E1/E2).
+- **HANDOFF generato**: `handoff/HANDOFF_2026-05-27_step8_done_step9_mailing.md` con stato completo, analisi PR #29 Georgios appena mergiata, e starting point STEP 9 per nuova sessione.
+
+### 2026-05-28
+- **STEP 9 Mailing list chiuso end-to-end con coverage extra (Davide)**: smoke E2E completo del flusso ISP upload → Deloitte lifecycle + tutte le varianti UI (Visualizza Report, CRUD contatti, popup ISP Aggiorna Documento + Annulla Richiesta). PASS, 100% coverage PR #29 Georgios. Durata ~1h, no nuovi commit BE/FE necessari (solo smoke e bug-list update). Sessione iniziata da handoff `HANDOFF_2026-05-27_step8_done_step9_mailing.md`.
+  - **Sanity check post-merge PR #29** (riepilogo dal handoff predecessore):
+    - BE `./mvnw clean compile -DskipTests`: PASS exit 0.
+    - FE `npx tsc --noEmit --skipLibCheck`: PASS exit 0.
+    - FE `MailingListPracticeFilterModel` (dealName/censimentoId/trackingId/monitoringId) allineato 1:1 a BE `MailingListPracticeFilterDTO`.
+    - DB M1 ad_form pre-smoke: 1 record `DOC_INCOMPLETA` residuo da test pregressi → cancellato per partire pulito.
+  - **State machine attraversata end-to-end**:
+    - Happy path: `∅ → DOC_COMPLETA → DOC_CONFERMATA → VERIFICA_IN_CORSO → REPORT_GENERATO` ✓
+    - Reject path: `∅ → DOC_COMPLETA → DOC_INCOMPLETA` ✓ (via "Annulla Richiesta" ISP popup, stesso endpoint `rejectAdForm` del "Rifiuta" Deloitte detail — coverage implicita).
+  - **Nuovi endpoint Georgios PR #29 verificati al 100%**:
+    - `POST /monitoring/mailing-list/practices` (search dedicato, no piu N+1) — testato con tutti 4 filtri (dealName/censimentoId/trackingId/monitoringId), responso paginato corretto, lista FE renderizzata con badge inline `adFormState` correttamente.
+    - `POST /practices/{id}/ad-form/conclude` — testato sia post-extract (transizione `VERIFICA_IN_CORSO → REPORT_GENERATO` di fatto no-op visto che extract placeholder lo lascia gia in `REPORT_GENERATO`) sia idempotenza (`REPORT_GENERATO → REPORT_GENERATO` accettato come da test unit Georgios). Nav `../` post-success funziona, action lista cambia in "Visualizza Report".
+    - `MonitoringPracticeSummaryDTO.adFormState/FileName/UploadDate` inline — badge severity (Success/Info/Warning/Danger) renderizzato correttamente per ciascun stato.
+    - File upload accept estesi `.pdf,.doc,.docx,.xlsx,.xls,.msg,.p7m` + maxFileSize 3MB + `clearAfterSelect=true` — testato rifiuto `.txt` (bloccato dall'input accept filter, vedi bug #12 sotto). maxFileSize 3MB non testato esplicitamente (skip: identico al .txt come UX, comportamento ereditato dal componente PrimeNG file-upload).
+  - **Sub-step 9.D Visualizza Report**: click action "Visualizza Report" su M1 in stato `REPORT_GENERATO` naviga al detail (stesso route `/consultant/monitoring/mailing-list/8288`, label diverso da "Update"). Detail mostra in piu una sezione **"Report Contatti Estratti"** (oggi popolata con gli stessi contatti CRUD della mailing — placeholder dell'output GenAI vera). Stage progress visualmente highlighted su TUTTI gli step compreso "Doc incompleta" mai attraversato: confermato dall'utente come comportamento atteso (mostra l'intera state machine possibile, non solo il path reale) — **non e bug**.
+  - **Sub-step 9.E CRUD contatti mailing list**: dal detail M1 lato Deloitte, testato Aggiungi (2 contatti: "Davide / davide94dsadsada@gmail.com / Ruolo a caso" + "Marco / marcodshgsafds@gmail.com / Altro ruolo a caso"), Modifica (Davide.role → "Ruolo aggiornato"), Cancella (Marco eliminato). DB post-CRUD: 1 contatto residuo come atteso. Toast + dialog di conferma su delete funzionanti.
+  - **Sub-step 9.F+9.G Reject + Popup ISP "Visualizza Richiesta"**: ISP re-upload AD Form (nuovo id=3, DOC_COMPLETA) → ISP popup "Visualizza Richiesta Aggiornamento":
+    - **"Aggiorna Documento"** (sostituzione file): carica un nuovo PDF nel campo upload del popup → click → BE crea nuovo record `ad_form` id=4 con `DOC_COMPLETA` (il `findFirstByPracticeIdOrderByUploadDateDesc` prende il piu recente come visible/attivo, lasciando id=3 storicizzato). Toast + popup chiuso + lista ricaricata. OK.
+    - **"Annulla Richiesta"** (= `rejectAdForm`, stesso endpoint del "Rifiuta" Deloitte detail): confirm dialog "Sei sicuro?" → conferma → record id=4 transitato a `DOC_INCOMPLETA`. Riga M1 resta in sezione 2 "Pratiche per cui e stato richiesto" con badge cambiato in "Documentazione Incompleta" (rosso Danger). Test #9.F coperto implicitamente (stesso endpoint, stesso BE behavior).
+  - **Bug noti aggiornati**:
+    - **#7** (`MailingListAdForm.state` VERIFICA_IN_CORSO mai persistito) — confermato NON risolto strutturalmente: `extractAdForm` placeholder setta `VERIFICA_IN_CORSO` poi sovrascrive a `REPORT_GENERATO` nello stesso transaction (visibilita microsecondi). Il nuovo `concludeAdForm` Georgios accetta entrambi gli stati (`VERIFICA_IN_CORSO|REPORT_GENERATO → REPORT_GENERATO` idempotente), quindi e gia pronto per quando GenAI vera sara async e VERIFICA_IN_CORSO durera secondi/minuti. **Resta documentato come by-design placeholder**, non blocker.
+    - **#2** (`mp.deal_id`/`contract_key` NULL su M1) — confermato ancora aperto: ID Censimento e Tracking ID vuoti nella lista mailing list per M1 (vedi screenshot smoke STEP 9). `createFromPostClosing` non copia. RIMASTO.
+  - **Bug nuovi rilevati STEP 9 (UX, non bloccanti)**:
+    - **#11** Upload AD Form senza feedback visivo: nessuno spinner/progress bar durante il POST `/practices/{id}/ad-form`. L'utente capisce che sta succedendo qualcosa SOLO osservando il Network tab del browser. Toast di successo appare a fine upload ma niente nel mezzo. Severity MEDIUM. Fix suggerito: aggiungere `SpinnerComponent.showLoader()/hideLoader()` attorno alla call (stesso pattern usato nel refactor STEP 7 wait GenAI).
+    - **#12** Validation formato/size file: il componente PrimeNG `<app-file-upload>` rifiuta correttamente formati non supportati (testato `.txt`) e (suppostamente) file > 3MB, ma mostra solo 2 icone X rosse + 1 X piccolo grigio senza messaggio testuale spiegativo del motivo del rifiuto. Comportamento default PrimeNG. Severity MEDIUM. Fix suggerito: hook su evento `onError` o `onValidationError` del componente per emettere un toast/messaggio chiaro tipo "Formato non supportato. Accettati: PDF, DOC, DOCX, XLSX, XLS, MSG, P7M" o "File troppo grande (max 3MB)".
+    - **#14** Bottone "Conferma e Aggiorna" still visible nel detail mailing-list Deloitte anche in stato finale `REPORT_GENERATO`. Tecnicamente idempotente (`concludeAdForm` accetta `REPORT_GENERATO` e lo lascia tale), quindi cliccarlo non rompe niente. Ma UX confondente: una volta nel report finale dovrebbe sparire o cambiare label in "Scarica Report" / "Visualizza Report". Severity LOW. Fix suggerito: gate `*ngIf="adForm.state !== REPORT_GENERATO"`.
+    - **#15** Popup ISP "Visualizza Richiesta Aggiornamento" ha `[closable]="false"` (riga 164 di `mailing-list.component.html`) e NO bottone "Chiudi" (a differenza del popup "Caricamento AD Form" alla riga 112 che ha `[closable]="false"` ma include il bottone "Chiudi" tra i footer buttons). User intrappolato, deve per forza fare "Aggiorna Documento" (con file selezionato) o "Annulla Richiesta" (che rifiuta l'AD form). Severity MEDIUM. Fix suggerito: aggiungere bottone "Chiudi" neutrale tra i due bottoni esistenti, oppure `[closable]="true"` con X in alto a destra.
+  - **Checklist smoke E2E aggiornata**:
+    | # | Step | Stato |
+    |---|---|---|
+    | 7 | GenAI Deloitte (extract → modify → apply) | DONE |
+    | 8 | COVNO upload + storico | **DONE** |
+    | 9 | Mailing list (CRUD + AD Form lifecycle complete) | **DONE** (100% coverage PR #29 Georgios + 4 sub-step extra) |
+    | 10 | Expired/Expiring events pages | PENDING — **STARTING POINT NUOVA SESSIONE** |
+- **HANDOFF generato**: `handoff/HANDOFF_2026-05-28_step9_done_step10_events.md` con stato completo, bug list aggiornata a 15 voci, fixture DB post-smoke, comandi rapidi, e action item per STEP 10 (ultimo step del piano monitoring).
